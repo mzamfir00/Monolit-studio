@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { parseCheckoutLines, validateCustomer, type CheckoutErrors } from "@/lib/checkout";
 import { CheckoutError, attachCheckoutSession, cancelPendingOrder, createPendingOrder, markOrderPaid } from "@/lib/server/orders";
 import { isPaymentSimulationEnabled, isStripeEnabled } from "@/lib/server/payments";
+import { invalidateCatalog } from "@/lib/server/catalog";
 import { createCheckoutSession } from "@/lib/server/stripe-checkout";
 
 export interface CheckoutState {
@@ -58,6 +59,7 @@ export async function placeOrder(formData: FormData): Promise<CheckoutState> {
   if (simulate) {
     try {
       await markOrderPaid(order.id, { simulated: true });
+      invalidateCatalog();
     } catch (error) {
       console.error("Simulated payment failed", error);
       return { formError: "Simularea plății a eșuat. Încearcă din nou." };

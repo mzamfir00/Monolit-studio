@@ -6,7 +6,7 @@ import { Guilloche } from "@/components/home/Guilloche";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductVisual } from "@/components/product/ProductVisual";
 import { ATELIERS } from "@/lib/branches";
-import { getFeaturedProducts, getProduct, getProductsByBranch } from "@/lib/catalog";
+import { getFeaturedProducts, getProduct, getProductsByBranch } from "@/lib/server/catalog";
 import { formatRon } from "@/lib/format";
 import { BRANCHES } from "@/lib/types";
 import { ENGRAVING_METHODS, MACHINES, MACHINE_ORDER, WORKFLOW_STEPS } from "@/lib/workshop";
@@ -90,23 +90,26 @@ function Hero() {
   );
 }
 
-function Ateliers() {
-  const entries: AtelierEntry[] = BRANCHES.map((branch) => {
-    const atelier = ATELIERS[branch];
-    const hero = getProduct(branch, atelier.heroProductSlug!)!;
-    return {
-      key: branch,
-      name: atelier.name,
-      shortName: atelier.shortName,
-      category: atelier.category,
-      tagline: atelier.tagline,
-      typePairing: atelier.typePairing,
-      href: atelier.href,
-      productCount: getProductsByBranch(branch).length,
-      heroCaption: `${hero.name} · ${formatRon(hero.priceBani)}`,
-      visual: <ProductVisual product={hero} className="size-full" />,
-    };
-  });
+async function Ateliers() {
+  const entries: AtelierEntry[] = await Promise.all(
+    BRANCHES.map(async (branch) => {
+      const atelier = ATELIERS[branch];
+      const products = await getProductsByBranch(branch);
+      const hero = (await getProduct(branch, atelier.heroProductSlug!)) ?? products[0];
+      return {
+        key: branch,
+        name: atelier.name,
+        shortName: atelier.shortName,
+        category: atelier.category,
+        tagline: atelier.tagline,
+        typePairing: atelier.typePairing,
+        href: atelier.href,
+        productCount: products.length,
+        heroCaption: hero ? `${hero.name} · ${formatRon(hero.priceBani)}` : "Colecție în pregătire",
+        visual: hero ? <ProductVisual product={hero} className="size-full" /> : null,
+      };
+    }),
+  );
   return (
     <section id="ateliere" className="scroll-mt-16 border-b border-line">
       <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
@@ -187,8 +190,8 @@ function Machines() {
   );
 }
 
-function Masterpieces() {
-  const featured = getFeaturedProducts();
+async function Masterpieces() {
+  const featured = await getFeaturedProducts();
   return (
     <section className="border-b border-line">
       <div className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:py-28">
@@ -267,6 +270,9 @@ function Payment() {
     </section>
   );
 }
+
+// Rendered per request from the cached catalogue, so admin edits show without a rebuild.
+export const dynamic = "force-dynamic";
 
 export default function HomePage() {
   return (

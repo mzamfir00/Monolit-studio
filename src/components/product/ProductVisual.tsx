@@ -3,6 +3,7 @@
 
 import type { ReactNode } from "react";
 import { SymbolPaths } from "@/components/engraving/SymbolGlyph";
+import { BLANK_GEOMETRY as G } from "@/lib/blank-geometry";
 import { fitTextSize, splitEngraveArea, usedLines } from "@/lib/engraving";
 import { formatMm } from "@/lib/format";
 import type { SymbolDef } from "@/lib/symbols";
@@ -188,9 +189,9 @@ function draw(p: CatalogProduct, metal: Metal): Drawing {
       const cx = 200;
       const cy = 230;
       const top = cy - r;
-      const holeY = top + 6.5 * s;
+      const holeY = top + G.hexTag.holeFromTopMm * s;
       const e = engraveSize(s);
-      const engrave = centered(cx, cy + 8, e.w, e.h);
+      const engrave = centered(cx, cy + G.hexTag.engraveOffsetYMm * s, e.w, e.h);
       return {
         body: (
           <>
@@ -203,7 +204,7 @@ function draw(p: CatalogProduct, metal: Metal): Drawing {
               strokeWidth={10}
             />
             <path
-              d={`M${hexagon(cx, cy, r).replace(/ /g, "L")}Z${circlePath(cx, holeY, 2 * s)}`}
+              d={`M${hexagon(cx, cy, r).replace(/ /g, "L")}Z${circlePath(cx, holeY, (G.hexTag.holeDiameterMm / 2) * s)}`}
               fill={metal.fill}
               fillRule="evenodd"
               stroke={metal.fill}
@@ -300,9 +301,9 @@ function draw(p: CatalogProduct, metal: Metal): Drawing {
       const x0 = 200 - len / 2;
       const x1 = 200 + len / 2;
       const cy = 200;
-      const bowlRx = 21 * s;
+      const bowlRx = (G.spoon.bowlLengthMm / 2) * s;
       const bowlRy = (p.heightMm * s) / 2;
-      const paddle = 7 * s;
+      const paddle = G.spoon.paddleHalfWidthMm * s;
       const e = engraveSize(s);
       const handle = `M${x0 + bowlRx * 1.9},${cy - 5} C${x0 + len * 0.55},${cy - 8} ${x0 + len * 0.7},${cy - paddle} ${x1 - paddle},${cy - paddle}
         Q${x1},${cy - paddle} ${x1},${cy} Q${x1},${cy + paddle} ${x1 - paddle},${cy + paddle}
@@ -319,7 +320,7 @@ function draw(p: CatalogProduct, metal: Metal): Drawing {
           </>
         ),
         outline: { box: centered(200, cy, len, p.heightMm * s), ...dims },
-        engrave: centered(x1 - paddle - e.w / 2 + 6, cy, e.w, e.h),
+        engrave: centered(x1 - G.spoon.engraveEndInsetMm * s - e.w / 2, cy, e.w, e.h),
       };
     }
 
@@ -328,7 +329,7 @@ function draw(p: CatalogProduct, metal: Metal): Drawing {
       const w = p.widthMm * s;
       const h = p.heightMm * s;
       const box = centered(200, 200, w, h);
-      const lidH = 19 * s;
+      const lidH = G.lighter.lidHeightMm * s;
       const e = engraveSize(s);
       const bodyCy = box.y + lidH + (h - lidH) / 2;
       return {
@@ -353,7 +354,7 @@ function draw(p: CatalogProduct, metal: Metal): Drawing {
       const w = p.widthMm * s;
       const h = p.heightMm * s;
       const box = centered(200, 200, w, h);
-      const band = { x: box.x + 5 * s, w: 8 * s };
+      const band = { x: box.x + G.cardholder.bandFromLeftMm * s, w: G.cardholder.bandWidthMm * s };
       const e = engraveSize(s);
       const engraveCx = (band.x + band.w + box.x + w) / 2;
       return {
@@ -388,12 +389,13 @@ function draw(p: CatalogProduct, metal: Metal): Drawing {
       const { x: L, y: T } = box;
       const R = L + w;
       const B = T + h;
-      const capW = 30 * s;
-      const capH = 12 * s;
-      const shoulder = T + capH + 6;
-      const outline = `M${200 - capW * 0.4},${shoulder} C${L + 40},${shoulder} ${L},${shoulder + 18} ${L},${shoulder + 58}
+      const capW = G.flask.capWidthMm * s;
+      const capH = G.flask.capHeightMm * s;
+      const shoulder = T + capH + G.flask.shoulderDropMm * s;
+      const panelTop = shoulder + G.flask.shoulderMm * s;
+      const outline = `M${200 - capW * 0.4},${shoulder} C${L + 40},${shoulder} ${L},${shoulder + 18} ${L},${panelTop}
         L${L},${B - 26} Q${L},${B} ${L + 26},${B} L${R - 26},${B} Q${R},${B} ${R},${B - 26}
-        L${R},${shoulder + 58} C${R},${shoulder + 18} ${R - 40},${shoulder} ${200 + capW * 0.4},${shoulder} Z`;
+        L${R},${panelTop} C${R},${shoulder + 18} ${R - 40},${shoulder} ${200 + capW * 0.4},${shoulder} Z`;
       const e = engraveSize(s);
       return {
         body: (
@@ -424,7 +426,7 @@ function draw(p: CatalogProduct, metal: Metal): Drawing {
           </>
         ),
         outline: { box, ...dims },
-        engrave: centered(200, (shoulder + 58 + B) / 2 - 6, e.w, e.h),
+        engrave: centered(200, (panelTop + B) / 2 - G.flask.shoulderDropMm * s, e.w, e.h),
       };
     }
 
@@ -433,7 +435,7 @@ function draw(p: CatalogProduct, metal: Metal): Drawing {
       const w = p.widthMm * s;
       const h = p.heightMm * s;
       const box = centered(200, 225, w, h);
-      const hole = { x: box.x + 9 * s, y: 225, r: 2.6 * s };
+      const hole = { x: box.x + G.keyfob.holeFromLeftMm * s, y: 225, r: (G.keyfob.holeDiameterMm / 2) * s };
       const e = engraveSize(s);
       return {
         body: (
@@ -459,7 +461,7 @@ function draw(p: CatalogProduct, metal: Metal): Drawing {
           </>
         ),
         outline: { box, ...dims },
-        engrave: centered(box.x + 17 * s + (p.engraveWidthMm * s) / 2, 225, e.w, e.h),
+        engrave: centered(box.x + G.keyfob.engraveFromLeftMm * s + (p.engraveWidthMm * s) / 2, 225, e.w, e.h),
       };
     }
 
@@ -468,7 +470,7 @@ function draw(p: CatalogProduct, metal: Metal): Drawing {
       const w = p.widthMm * s;
       const h = p.heightMm * s;
       const box = centered(200, 200, w, h);
-      const plate = centered(200, 200, 150 * s, 100 * s);
+      const plate = centered(200, 200, G.plates.plaque.widthMm * s, G.plates.plaque.heightMm * s);
       const e = engraveSize(s);
       return {
         body: (
@@ -507,7 +509,7 @@ function draw(p: CatalogProduct, metal: Metal): Drawing {
       const w = p.widthMm * s;
       const h = p.heightMm * s;
       const box = centered(200, 200, w, h);
-      const plateH = 50 * s * Math.cos((15 * Math.PI) / 180);
+      const plateH = G.plates.nameplate.heightMm * s * Math.cos((15 * Math.PI) / 180);
       const baseY = box.y + plateH;
       const e = engraveSize(s);
       return {
@@ -532,7 +534,7 @@ function draw(p: CatalogProduct, metal: Metal): Drawing {
       const front = centered(200, 238, w, h);
       const topH = p.depthMm * s * 0.3;
       const bowlRx = 70 * s;
-      const plate = centered(200, front.y + h / 2, 80 * s, 20 * s);
+      const plate = centered(200, front.y + h / 2, G.plates["bowl-stand"].widthMm * s, G.plates["bowl-stand"].heightMm * s);
       const e = engraveSize(s);
       return {
         body: (
@@ -568,7 +570,7 @@ function draw(p: CatalogProduct, metal: Metal): Drawing {
       const ry = 100;
       const s = rx / (p.widthMm / Math.PI / 2);
       const strap = p.heightMm * s;
-      const plate = centered(cx, cy + ry, 50 * s, 14 * s);
+      const plate = centered(cx, cy + ry, G.plates.collar.widthMm * s, G.plates.collar.heightMm * s);
       const e = engraveSize(s);
       return {
         body: (

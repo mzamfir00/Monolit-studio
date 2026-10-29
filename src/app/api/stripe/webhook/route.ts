@@ -1,4 +1,5 @@
 import type Stripe from "stripe";
+import { invalidateCatalog } from "@/lib/server/catalog";
 import { cancelPendingOrder } from "@/lib/server/orders";
 import { isStripeEnabled, stripe } from "@/lib/server/payments";
 import { settleCheckoutSession } from "@/lib/server/stripe-checkout";
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
   switch (event.type) {
     case "checkout.session.completed":
     case "checkout.session.async_payment_succeeded":
-      await settleCheckoutSession(event.data.object);
+      if (await settleCheckoutSession(event.data.object)) invalidateCatalog();
       break;
     case "checkout.session.expired": {
       const orderId = event.data.object.metadata?.orderId;

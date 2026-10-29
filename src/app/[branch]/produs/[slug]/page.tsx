@@ -5,17 +5,14 @@ import { Check, ChevronRight } from "lucide-react";
 import { EngravingConfigurator } from "@/components/engraving/EngravingConfigurator";
 import { ProductCard, lowestUnitPrice } from "@/components/product/ProductCard";
 import { ATELIERS, isBranch } from "@/lib/branches";
-import { getAllProducts, getProduct, getProductsByBranch } from "@/lib/catalog";
+import { getProduct, getProductsByBranch } from "@/lib/server/catalog";
 import { formatGrams, formatMm, formatRon } from "@/lib/format";
 import { ENGRAVING_METHODS, MACHINES, MATERIAL_LABELS } from "@/lib/workshop";
 
 type Params = Promise<{ branch: string; slug: string }>;
 
-export const dynamicParams = false;
-
-export function generateStaticParams() {
-  return getAllProducts().map(({ branch, slug }) => ({ branch, slug }));
-}
+// Rendered per request from the cached catalogue: live stock, and new products need no rebuild.
+export const dynamic = "force-dynamic";
 
 async function load(params: Params) {
   const { branch, slug } = await params;
@@ -31,7 +28,7 @@ export default async function ProductPage({ params }: { params: Params }) {
   const product = await load(params);
   if (!product) notFound();
   const atelier = ATELIERS[product.branch];
-  const related = getProductsByBranch(product.branch).filter((other) => other.slug !== product.slug);
+  const related = (await getProductsByBranch(product.branch)).filter((other) => other.slug !== product.slug);
   const lowStock = product.stockQuantity <= product.lowStockThreshold;
 
   const specs: Array<[string, string]> = [

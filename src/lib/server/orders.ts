@@ -3,6 +3,7 @@ import { randomBytes, randomInt, timingSafeEqual } from "node:crypto";
 import { access } from "node:fs/promises";
 import path from "node:path";
 import { Prisma, type OrderStatus } from "@/generated/prisma/client";
+import { blankSpecOf } from "@/lib/blank-spec";
 import type { CheckoutLine, CustomerDetails } from "@/lib/checkout";
 import { charCount, sanitizeLine, validateEngraving } from "@/lib/engraving";
 import { formatRon } from "@/lib/format";
@@ -161,6 +162,7 @@ export async function createPendingOrder(
               customUploadUrl: engraving.sketch?.id,
               sketchName: engraving.sketch?.name,
               giftPackaging: engraving.giftPackaging,
+              blankSpec: { ...blankSpecOf(product) },
             })),
           },
           statusEvents: { create: { status: "PENDING_PAYMENT" } },

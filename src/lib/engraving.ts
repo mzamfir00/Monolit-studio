@@ -132,6 +132,30 @@ export function estimateLetterHeightMm(product: CatalogProduct, lines: string[],
   return Math.round(fitTextSize(text!, used) * 0.7 * 10) / 10;
 }
 
+/** The engraving columns of a stored OrderItem, back in the EngravingConfig shape the UI renders. */
+export function engravingFromOrderItem(item: {
+  variantName: string;
+  engravingSides: EngravingSides;
+  fontKey: string;
+  frontLines: string[];
+  backLines: string[];
+  symbolKey: string | null;
+  customUploadUrl: string | null;
+  sketchName: string | null;
+  giftPackaging: boolean;
+}): EngravingConfig {
+  return {
+    variantName: item.variantName,
+    sides: item.engravingSides,
+    fontKey: item.fontKey as FontKey,
+    frontLines: item.frontLines,
+    backLines: item.backLines,
+    symbolKey: item.symbolKey,
+    sketch: item.sketchName ? { id: item.customUploadUrl ?? "", name: item.sketchName, size: 0, type: "" } : null,
+    giftPackaging: item.giftPackaging,
+  };
+}
+
 /** One-line description of an engraving, for Stripe line items and e-mails. */
 export function describeEngraving(config: EngravingConfig): string {
   const parts = [

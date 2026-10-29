@@ -244,6 +244,9 @@ model OrderItem {
   sketchName      String?
   giftPackaging   Boolean        @default(false)
 
+  /// BlankSpec snapshot (src/lib/blank-spec.ts): dimensions, engraving area and tooling at the time of sale.
+  blankSpec Json?
+
   /// Machine the owner assigned in the production queue (suggested from Product.recommendedMachine).
   assignedMachine Machine?
 

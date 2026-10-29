@@ -5,7 +5,7 @@ import { ArrowRight, Ban, Clock, Cpu, FlaskConical } from "lucide-react";
 import { EngravingDetails } from "@/components/engraving/EngravingDetails";
 import { OrderTracker } from "@/components/orders/OrderTracker";
 import { ATELIERS } from "@/lib/branches";
-import type { EngravingConfig, FontKey } from "@/lib/engraving";
+import { engravingFromOrderItem } from "@/lib/engraving";
 import { formatRon } from "@/lib/format";
 import { ORDER_NUMBER_PATTERN, findOrderForCustomer, type CustomerOrder } from "@/lib/server/orders";
 import { isPaymentSimulationEnabled, isStripeEnabled } from "@/lib/server/payments";
@@ -17,21 +17,6 @@ import { OrderLookup } from "./OrderLookup";
 
 export const metadata: Metadata = { title: "Comanda ta", robots: { index: false } };
 export const dynamic = "force-dynamic";
-
-type Item = CustomerOrder["items"][number];
-
-function engravingOf(item: Item): EngravingConfig {
-  return {
-    variantName: item.variantName,
-    sides: item.engravingSides,
-    fontKey: item.fontKey as FontKey,
-    frontLines: item.frontLines,
-    backLines: item.backLines,
-    symbolKey: item.symbolKey,
-    sketch: item.sketchName ? { id: item.customUploadUrl ?? "", name: item.sketchName, size: 0, type: "" } : null,
-    giftPackaging: item.giftPackaging,
-  };
-}
 
 function AddressBlock({ title, lines }: { title: string; lines: Array<string | null | undefined> }) {
   return (
@@ -192,7 +177,7 @@ export default async function OrderPage({
                       )}
                     </div>
                   </div>
-                  <EngravingDetails config={engravingOf(item)} />
+                  <EngravingDetails config={engravingFromOrderItem(item)} />
                 </li>
               );
             })}

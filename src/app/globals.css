@@ -420,3 +420,30 @@ html:has(.branch-shell[data-branch="corporate"]) {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Printing a job sheet: the open <dialog class="print-sheet"> (portalled to <body>) is the only thing on paper. */
+@media print {
+  html:has(dialog.print-sheet[open]),
+  html:has(dialog.print-sheet[open]) body {
+    background: #fff !important;
+  }
+  body:has(> dialog.print-sheet[open]) > :not(dialog.print-sheet[open]) {
+    display: none !important;
+  }
+  dialog.print-sheet[open] {
+    position: static;
+    width: auto;
+    max-width: none;
+    max-height: none;
+    margin: 0;
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    background: #fff;
+    color: #000;
+  }
+  dialog.print-sheet::backdrop {
+    display: none;
+  }
+}

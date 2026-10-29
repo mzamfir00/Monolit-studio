@@ -4,19 +4,32 @@ import { BranchHero } from "@/components/storefront/BranchHero";
 import { CraftSection, OtherAteliers, PillarStrip } from "@/components/storefront/BranchSections";
 import { VolumeCalculator } from "@/components/storefront/VolumeCalculator";
 import { ATELIERS, isBranch } from "@/lib/branches";
-import { getProduct, getProductsByBranch } from "@/lib/catalog";
+import { getProduct, getProductsByBranch } from "@/lib/server/catalog";
+
+// Rendered per request from the cached catalogue, so admin edits show without a rebuild.
+export const dynamic = "force-dynamic";
 
 export default async function BranchStorefront({ params }: { params: Promise<{ branch: string }> }) {
   const { branch } = await params;
   if (!isBranch(branch)) notFound();
   const atelier = ATELIERS[branch];
-  const products = getProductsByBranch(branch);
-  const hero = getProduct(branch, atelier.heroProductSlug!) ?? products[0];
+  const products = await getProductsByBranch(branch);
+  const hero = (await getProduct(branch, atelier.heroProductSlug!)) ?? products[0];
   const tiered = products.filter((product) => product.volumeTiers.length > 0);
 
   return (
     <>
-      <BranchHero branch={branch} product={hero} />
+      {hero ? (
+        <BranchHero branch={branch} product={hero} />
+      ) : (
+        <section className="texture border-b border-line">
+          <div className="mx-auto grid max-w-7xl gap-6 px-4 py-24 sm:px-6">
+            <p className="eyebrow text-metal-text">{atelier.eyebrow}</p>
+            <h1 className="display text-hero">{atelier.heroTitle}</h1>
+            <p className="max-w-xl text-lg text-muted">Colecția acestui atelier se pregătește. Revino în curând.</p>
+          </div>
+        </section>
+      )}
       <PillarStrip branch={branch} />
 
       <section id="colectia" className="scroll-mt-16">
