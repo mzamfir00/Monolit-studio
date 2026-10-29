@@ -1,0 +1,231 @@
+// Maison Gravure — multi-branch luxury engraving storefront + Gravograph M20 workshop ERP.
+// See CLAUDE.md for the business rules behind these models.
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// The four commercial verticals. Values match the URL segment (`/pet`) and the `data-branch` theme key.
+enum Branch {
+  pet
+  jewelry
+  vault
+  corporate
+}
+
+/// The three physical Gravograph M20 units in the workshop.
+enum Machine {
+  /// Latest gen — fine micro-engraving: 925 silver, cufflinks, jewelry branch.
+  M20_NEW_GEN
+  /// Previous gen #1 — heavy brass & stainless steel: pet and vault branches.
+  M20_OLD_GEN_1
+  /// Previous gen #2 — corporate batch runs, large plaques, backup unit.
+  M20_OLD_GEN_2
+}
+
+enum EngravingMethod {
+  /// Diamond tip compresses the metal: fine, bright line, no material removed.
+  DIAMOND_DRAG
+  /// Carbide cutter removes material: deep, tactile channel, can be paint-filled.
+  ROTARY_MILLING
+}
+
+enum Material {
+  BRASS
+  STAINLESS_316L
+  SILVER_925
+  TITANIUM
+  LEATHER
+  WOOD
+  CERAMIC
+}
+
+enum OrderStatus {
+  /// Stripe Checkout session created, payment not confirmed yet. Not shown in the production queue.
+  PENDING_PAYMENT
+  PAID_NEW
+  ASSIGNED_TO_M20
+  ENGRAVING
+  FINISHING_ULTRASONIC
+  PACKAGING
+  SHIPPED
+  CANCELLED
+}
+
+/// Persoană Fizică vs Persoană Juridică (requires CUI + Reg. Com.).
+enum CustomerType {
+  INDIVIDUAL
+  COMPANY
+}
+
+enum EngravingSides {
+  FRONT
+  FRONT_AND_BACK
+}
+
+model Product {
+  id          String   @id @default(cuid())
+  slug        String   @unique
+  branch      Branch
+  name        String
+  subtitle    String
+  description String
+  /// Base price in bani (RON × 100), the unit Stripe expects.
+  priceBani   Int
+  highlights  String[]
+  isFeatured  Boolean  @default(false)
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  /// Key of the SVG renderer in src/components/product/ProductVisual.tsx, used until photography exists.
+  visual      String
+  imageUrl    String?
+  /// Example text drawn on the visual (not a customer default).
+  sampleEngraving String[]
+
+  // Physical object (outer envelope)
+  widthMm     Float
+  heightMm    Float
+  depthMm     Float
+  weightGrams Float
+
+  // Gravograph M20 technical metadata
+  /// Workshop code of the physical blank (semifabricat).
+  blankSku               String          @unique
+  /// Material of the surface that is engraved.
+  material               Material
+  engraveWidthMm         Float
+  engraveHeightMm        Float
+  engraveDepthMm         Float
+  recommendedMachine     Machine
+  engravingMethod        EngravingMethod
+  /// Tool tip + depth recommendation printed on the job sheet.
+  toolRecommendation     String
+  maxCharsPerLine        Int
+  maxLines               Int
+  backEngravingAvailable Boolean         @default(false)
+  backEngravingPriceBani Int             @default(0)
+  /// Vector symbol libraries offered in the configurator ("pet", "jewelry", "edc").
+  symbolSets             String[]
+  stockQuantity          Int             @default(0)
+  lowStockThreshold      Int             @default(5)
+  leadTimeDays           Int             @default(3)
+
+  variants    ProductVariant[]
+  volumeTiers VolumeTier[]
+  orderItems  OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([branch, isActive, sortOrder])
+}
+
+/// Material / finish option (e.g. "Alamă Masivă Periată", "Argint 925 Rodiat").
+model ProductVariant {
+  id             String   @id @default(cuid())
+  productId      String
+  product        Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  name           String
+  material       Material
+  priceDeltaBani Int      @default(0)
+  isDefault      Boolean  @default(false)
+  sortOrder      Int      @default(0)
+
+  @@unique([productId, name])
+}
+
+/// Corporate volume pricing: from `minQuantity` pieces, the unit price drops by `discountPercent`.
+model VolumeTier {
+  id              String  @id @default(cuid())
+  productId       String
+  product         Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  minQuantity     Int
+  discountPercent Int
+
+  @@unique([productId, minQuantity])
+}
+
+model Order {
+  id       String      @id @default(cuid())
+  /// Human-facing order number, e.g. MG-2026-000123.
+  number   String      @unique
+  status   OrderStatus @default(PENDING_PAYMENT)
+  isUrgent Boolean     @default(false)
+
+  customerType CustomerType @default(INDIVIDUAL)
+  email        String
+  phone        String
+
+  billingName       String
+  billingAddress    String
+  billingCity       String
+  billingCounty     String
+  billingPostalCode String
+  companyName       String?
+  /// Cod Unic de Înregistrare (PJ only).
+  companyCui        String?
+  /// Număr Registrul Comerțului, e.g. J40/1234/2020 (PJ only).
+  companyRegCom     String?
+
+  shippingName       String
+  shippingAddress    String
+  shippingCity       String
+  shippingCounty     String
+  shippingPostalCode String
+
+  subtotalBani Int
+  shippingBani Int
+  totalBani    Int
+  currency     String @default("RON")
+
+  stripeCheckoutSessionId String?   @unique
+  stripePaymentIntentId   String?   @unique
+  paidAt                  DateTime?
+
+  courierName String?
+  awbNumber   String?
+  shippedAt   DateTime?
+  notes       String?
+
+  items OrderItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([status, createdAt])
+}
+
+/// One engraved piece. Product data is snapshotted so the job sheet survives catalogue edits.
+model OrderItem {
+  id        String   @id @default(cuid())
+  orderId   String
+  order     Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  branch        Branch
+  productName   String
+  variantName   String
+  blankSku      String
+  quantity      Int
+  unitPriceBani Int
+
+  engravingSides  EngravingSides @default(FRONT)
+  fontKey         String
+  frontLines      String[]
+  backLines       String[]
+  symbolKey       String?
+  customUploadUrl String?
+  giftPackaging   Boolean        @default(false)
+
+  /// Machine the owner assigned in the production queue (suggested from Product.recommendedMachine).
+  assignedMachine Machine?
+
+  @@index([orderId])
+  @@index([assignedMachine])
+}
