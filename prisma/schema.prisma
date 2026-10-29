@@ -107,6 +107,9 @@ model Product {
   toolRecommendation     String
   maxCharsPerLine        Int
   maxLines               Int
+  /// Configurator placeholder per line, e.g. front = "Numele câinelui", back = "Telefon stăpân".
+  frontLineHints         String[]        @default([])
+  backLineHints          String[]        @default([])
   backEngravingAvailable Boolean         @default(false)
   backEngravingPriceBani Int             @default(0)
   /// Vector symbol libraries offered in the configurator ("pet", "jewelry", "edc").
@@ -132,6 +135,8 @@ model ProductVariant {
   product        Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   name           String
   material       Material
+  /// Hex colour of the finish, shown as a swatch in the configurator.
+  swatch         String?
   priceDeltaBani Int      @default(0)
   isDefault      Boolean  @default(false)
   sortOrder      Int      @default(0)

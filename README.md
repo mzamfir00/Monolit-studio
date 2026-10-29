@@ -46,6 +46,12 @@ npm run db:seed
 | `npm run db:seed`                    | Upsert the 12-product catalogue (idempotent) |
 | `npm run db:studio`                  | Prisma Studio                                |
 
+## Personalization configurator
+
+Every product page (`/[branch]/produs/[slug]`) runs the step-by-step engraving configurator: finish, front / back, typeface, text lines limited by the blank's real engraving area, a vector symbol library, an optional sketch upload and the velvet gift box. The live SVG preview and the RON total update as you type, and configured pieces from every branch go into the persisted Universal Cart.
+
+Sketch uploads are stored on local disk in `./.uploads` (override with `UPLOAD_DIR`).
+
 ## How the theme system works
 
 Each atelier is a set of `--b-*` CSS variables under `[data-branch="…"]` in `src/app/globals.css`. Tailwind utilities such as `bg-bg`, `text-ink`, `bg-accent`, `font-display` and `rounded-branch` read those variables, so any element re-themes itself by setting `data-branch`. The page shell sets it for the whole page; product cards, cart badges and the umbrella's atelier preview set it on themselves to keep their own identity inside another atelier's page.

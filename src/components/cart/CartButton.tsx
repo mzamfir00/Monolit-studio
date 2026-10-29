@@ -1,12 +1,12 @@
 "use client";
 
 import { ShoppingBag } from "lucide-react";
-import { cartCount, useCart, useHydrated } from "@/store/cart";
+import { cartCount, useCartStore, useHydrated } from "@/store/useCartStore";
 
 export function CartButton() {
   const hydrated = useHydrated();
-  const count = useCart((state) => cartCount(state.items));
-  const open = useCart((state) => state.open);
+  const count = useCartStore((state) => cartCount(state.items));
+  const open = useCartStore((state) => state.open);
   const shown = hydrated ? count : 0;
 
   return (

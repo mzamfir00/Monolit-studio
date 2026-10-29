@@ -21,7 +21,3 @@ export function getFeaturedProducts(): CatalogProduct[] {
 export function getProduct(branch: Branch, slug: string): CatalogProduct | undefined {
   return products.find((product) => product.branch === branch && product.slug === slug);
 }
-
-export function getDefaultVariant(product: CatalogProduct) {
-  return product.variants.find((variant) => variant.isDefault) ?? product.variants[0];
-}

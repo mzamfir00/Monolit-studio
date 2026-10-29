@@ -31,6 +31,8 @@ export type ProductVisualKey =
 export interface ProductVariant {
   name: string;
   material: Material;
+  /** Finish colour for the configurator swatch. */
+  swatch: string;
   priceDeltaBani: number;
   isDefault: boolean;
 }
@@ -69,6 +71,9 @@ export interface CatalogProduct {
   toolRecommendation: string;
   maxCharsPerLine: number;
   maxLines: number;
+  /** Placeholder per front line in the configurator, e.g. "Numele câinelui". */
+  frontLineHints: string[];
+  backLineHints: string[];
   backEngravingAvailable: boolean;
   backEngravingPriceBani: number;
   symbolSets: SymbolSet[];

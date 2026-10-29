@@ -1,11 +1,15 @@
 import {
   Archivo,
   Bodoni_Moda,
+  Cinzel,
   Cormorant_Garamond,
+  EB_Garamond,
   Fraunces,
+  Great_Vibes,
   IBM_Plex_Mono,
   Inter,
   JetBrains_Mono,
+  Montserrat,
   Plus_Jakarta_Sans,
   Space_Grotesk,
 } from "next/font/google";
@@ -82,6 +86,51 @@ const plexMono = IBM_Plex_Mono({
   preload: false,
 });
 
-export const fontVariables = [cormorant, jakarta, fraunces, bodoni, inter, spaceGrotesk, jetbrains, archivo, plexMono]
+// Engraving typefaces offered in the configurator (see ENGRAVING_FONTS in src/lib/engraving.ts).
+
+const ebGaramond = EB_Garamond({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-eb-garamond",
+  display: "swap",
+  preload: false,
+});
+
+const greatVibes = Great_Vibes({
+  subsets: ["latin", "latin-ext"],
+  weight: "400",
+  variable: "--font-great-vibes",
+  display: "swap",
+  preload: false,
+});
+
+const montserrat = Montserrat({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-montserrat",
+  display: "swap",
+  preload: false,
+});
+
+const cinzel = Cinzel({
+  subsets: ["latin", "latin-ext"],
+  variable: "--font-cinzel",
+  display: "swap",
+  preload: false,
+});
+
+export const fontVariables = [
+  cormorant,
+  jakarta,
+  fraunces,
+  bodoni,
+  inter,
+  spaceGrotesk,
+  jetbrains,
+  archivo,
+  plexMono,
+  ebGaramond,
+  greatVibes,
+  montserrat,
+  cinzel,
+]
   .map((font) => font.variable)
   .join(" ");

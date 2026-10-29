@@ -2,8 +2,11 @@
 // They stand in for photography and double as a preview of the engraving area.
 
 import type { ReactNode } from "react";
+import { SymbolPaths } from "@/components/engraving/SymbolGlyph";
+import { fitTextSize, splitEngraveArea, usedLines } from "@/lib/engraving";
 import { formatMm } from "@/lib/format";
-import type { CatalogProduct, Material, ProductVisualKey } from "@/lib/types";
+import type { SymbolDef } from "@/lib/symbols";
+import type { CatalogProduct, Material, ProductVariant, ProductVisualKey } from "@/lib/types";
 
 const VB = 400;
 
@@ -37,6 +40,37 @@ const METALS: Partial<Record<Material, Metal>> = {
 
 const centered = (cx: number, cy: number, w: number, h: number): Box => ({ x: cx - w / 2, y: cy - h / 2, w, h });
 
+const rgb = (hex: string) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16));
+const luminance = (hex: string) => {
+  const [r, g, b] = rgb(hex);
+  return (0.2126 * r + 0.7152 * g + 0.0722 * b) / 255;
+};
+
+/**
+ * Colour to wash over the blank when a finish visibly changes the metal (gold plating, DLC, patina…).
+ * Finishes of the same tone as the default — brushed vs polished brass — keep the base rendering.
+ */
+export function finishTint(product: CatalogProduct, variant: ProductVariant): string | undefined {
+  const base = product.variants.find((candidate) => candidate.isDefault) ?? product.variants[0];
+  if (variant === base || variant.material !== product.material || !/^#[0-9a-f]{6}$/i.test(variant.swatch)) return undefined;
+  const [a, b] = [rgb(variant.swatch), rgb(base.swatch)];
+  return Math.hypot(a[0] - b[0], a[1] - b[1], a[2] - b[2]) > 60 ? variant.swatch : undefined;
+}
+
+/** Patina, DLC, PVD, ruthenium: the coating darkens the metal and the engraving cuts through to bright metal. */
+const isDarkFinish = (tint: string) => luminance(tint) < 0.5;
+
+/** Dark finishes darken the metal and the cut shows bright; light ones (gold plating) only shift the hue. */
+function TintFilter({ id, tint }: { id: string; tint: string }) {
+  return (
+    <filter id={id} colorInterpolationFilters="sRGB">
+      <feFlood floodColor={tint} result="flood" />
+      <feComposite in="flood" in2="SourceAlpha" operator="in" result="wash" />
+      <feBlend in="wash" in2="SourceGraphic" mode={isDarkFinish(tint) ? "multiply" : "color"} />
+    </filter>
+  );
+}
+
 function hexagon(cx: number, cy: number, r: number) {
   return [-90, -30, 30, 90, 150, 210]
     .map((deg) => {
@@ -50,10 +84,32 @@ function circlePath(cx: number, cy: number, r: number) {
   return `M${cx - r},${cy}a${r},${r} 0 1,0 ${2 * r},0a${r},${r} 0 1,0 ${-2 * r},0`;
 }
 
-function EngravedText({ box, lines, metal }: { box: Box; lines: string[]; metal: Metal }) {
+/** Customer engraving drawn into the engraving area (the configurator's live preview). */
+export interface VisualEngraving {
+  lines: string[];
+  fontFamily: string;
+  uppercase?: boolean;
+  symbol?: SymbolDef | null;
+  initials?: string;
+  /** Object URL of an uploaded sketch, shown in the graphic slot. */
+  imageUrl?: string | null;
+}
+
+function EngravedText({
+  box,
+  lines,
+  metal,
+  fontFamily = "var(--b-font-display)",
+  uppercase = false,
+}: {
+  box: Box;
+  lines: string[];
+  metal: Metal;
+  fontFamily?: string;
+  uppercase?: boolean;
+}) {
   if (lines.length === 0) return null;
-  const longest = Math.max(...lines.map((line) => line.length), 3);
-  const size = Math.min(box.h / (lines.length * 1.3), (box.w * 0.9) / (longest * 0.7));
+  const size = fitTextSize(box, lines);
   const lineHeight = size * 1.3;
   const top = box.y + box.h / 2 - (lineHeight * (lines.length - 1)) / 2;
   const cx = box.x + box.w / 2;
@@ -61,7 +117,13 @@ function EngravedText({ box, lines, metal }: { box: Box; lines: string[]; metal:
     <g
       textAnchor="middle"
       fontSize={size}
-      style={{ fontFamily: "var(--b-font-display)", fontStretch: "normal", fontWeight: 500, letterSpacing: "0.06em" }}
+      style={{
+        fontFamily,
+        fontStretch: "normal",
+        fontWeight: 500,
+        letterSpacing: "0.06em",
+        textTransform: uppercase ? "uppercase" : undefined,
+      }}
     >
       {lines.map((line, i) => (
         <g key={i}>
@@ -74,6 +136,41 @@ function EngravedText({ box, lines, metal }: { box: Box; lines: string[]; metal:
         </g>
       ))}
     </g>
+  );
+}
+
+function Engraving({ box, engraving, metal }: { box: Box; engraving: VisualEngraving; metal: Metal }) {
+  const lines = usedLines(engraving.lines);
+  const hasGraphic = Boolean(engraving.symbol || engraving.imageUrl);
+  const { graphic, text } = splitEngraveArea(box, hasGraphic, lines.length > 0);
+  return (
+    <>
+      {graphic && engraving.imageUrl && (
+        <image
+          href={engraving.imageUrl}
+          x={graphic.x}
+          y={graphic.y}
+          width={graphic.w}
+          height={graphic.h}
+          preserveAspectRatio="xMidYMid meet"
+          style={{ filter: "grayscale(1) contrast(1.4)", mixBlendMode: "multiply" }}
+          opacity={0.85}
+        />
+      )}
+      {graphic && !engraving.imageUrl && engraving.symbol && (
+        <svg x={graphic.x} y={graphic.y} width={graphic.w} height={graphic.h} viewBox="0 0 24 24" overflow="visible">
+          <SymbolPaths
+            symbol={engraving.symbol}
+            initials={engraving.initials}
+            fontFamily={engraving.fontFamily}
+            color={metal.ink}
+          />
+        </svg>
+      )}
+      {text && (
+        <EngravedText box={text} lines={lines} metal={metal} fontFamily={engraving.fontFamily} uppercase={engraving.uppercase} />
+      )}
+    </>
   );
 }
 
@@ -589,17 +686,43 @@ export function ProductVisual({
   product,
   showDimensions = false,
   className,
+  engraving,
+  material,
+  tint,
 }: {
   product: CatalogProduct;
   showDimensions?: boolean;
   className?: string;
+  /** Replaces the sample text with the customer's engraving. */
+  engraving?: VisualEngraving;
+  /** Finish material to paint, when the chosen variant changes the metal. */
+  material?: Material;
+  /** Finish colour from finishTint(). */
+  tint?: string;
 }) {
-  const metal = METALS[product.material] ?? METALS.BRASS!;
+  const base = (material && METALS[material]) || METALS[product.material] || METALS.BRASS!;
+  const darkFinish = tint !== undefined && isDarkFinish(tint);
+  const metal = darkFinish ? { ...base, ink: "#eef0f2", glow: "rgba(0,0,0,0.45)" } : base;
   const drawing = draw(product, metal);
+  const tintId = tint && `mv-tint-${tint.slice(1)}`;
   return (
     <svg viewBox={`0 0 ${VB} ${VB}`} role="img" aria-label={product.name} className={className}>
-      <g filter="url(#mv-shadow)">{drawing.body}</g>
-      <EngravedText box={drawing.engrave} lines={product.sampleEngraving} metal={metal} />
+      {tint && tintId && (
+        <defs>
+          <TintFilter id={tintId} tint={tint} />
+        </defs>
+      )}
+      <g filter="url(#mv-shadow)">
+        <g filter={tintId ? `url(#${tintId})` : undefined}>{drawing.body}</g>
+      </g>
+      {/* A light finish colours the cut too; a dark one is cut through, so the engraving stays bright. */}
+      <g filter={tintId && !darkFinish ? `url(#${tintId})` : undefined}>
+        {engraving ? (
+          <Engraving box={drawing.engrave} engraving={engraving} metal={metal} />
+        ) : (
+          <EngravedText box={drawing.engrave} lines={product.sampleEngraving} metal={metal} />
+        )}
+      </g>
       {showDimensions && <Annotations drawing={drawing} product={product} />}
     </svg>
   );
