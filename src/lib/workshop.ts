@@ -1,4 +1,4 @@
-import type { Branch, EngravingMethod, Machine, Material } from "./types";
+import type { Branch, EngravingMethod, Machine, Material, OrderStatus } from "./types";
 
 export const MATERIAL_LABELS: Record<Material, string> = {
   BRASS: "Alamă masivă",
@@ -52,6 +52,11 @@ export const MACHINES: Record<Machine, MachineInfo> = {
 
 export const MACHINE_ORDER: Machine[] = ["M20_NEW_GEN", "M20_OLD_GEN_1", "M20_OLD_GEN_2"];
 
+/** Machine suggested for a branch — the fallback when an order line's product no longer exists. */
+export function machineForBranch(branch: Branch): Machine {
+  return MACHINE_ORDER.find((machine) => MACHINES[machine].suggestedFor.includes(branch)) ?? "M20_OLD_GEN_2";
+}
+
 export interface MethodInfo {
   key: EngravingMethod;
   label: string;
@@ -98,9 +103,18 @@ export const WORKFLOW_STEPS = [
   },
   {
     status: "FINISHING_ULTRASONIC",
-    label: "Ultrasunete & lustruire",
+    label: "Curățare cu ultrasunete",
     detail: "Baia cu ultrasunete scoate orice urmă de așchie; urmează lustruirea manuală.",
   },
   { status: "PACKAGING", label: "Ambalare premium", detail: "Verificare finală sub lupă, apoi cutia de atelier." },
-  { status: "SHIPPED", label: "Expediată + AWB", detail: "Primești pe e-mail numărul AWB și curierul." },
+  { status: "SHIPPED", label: "Expediată + AWB", detail: "Coletul pleacă din atelier; numărul AWB și curierul apar aici." },
 ] as const;
+
+export const ORDER_STATUS_LABELS: Record<OrderStatus, string> = {
+  PENDING_PAYMENT: "În așteptarea plății",
+  ...(Object.fromEntries(WORKFLOW_STEPS.map((step) => [step.status, step.label])) as Record<
+    (typeof WORKFLOW_STEPS)[number]["status"],
+    string
+  >),
+  CANCELLED: "Anulată",
+};

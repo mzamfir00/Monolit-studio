@@ -9,6 +9,14 @@ export const SKETCH_VECTORIZATION_FEE_BANI = 6900;
 /** Rigid workshop box with velvet insert + Mechanical Engraving Certificate, per piece. */
 export const GIFT_BOX_FEE_BANI = 5900;
 
+/** Courier delivery with AWB, free from FREE_SHIPPING_FROM_BANI. */
+export const SHIPPING_FEE_BANI = 2500;
+export const FREE_SHIPPING_FROM_BANI = 50000;
+
+export function shippingFor(subtotalBani: number): number {
+  return subtotalBani >= FREE_SHIPPING_FROM_BANI ? 0 : SHIPPING_FEE_BANI;
+}
+
 /** Everything needed to re-price a cart line when its quantity changes. */
 export interface LinePricing {
   /** Product + finish, before volume discount. */

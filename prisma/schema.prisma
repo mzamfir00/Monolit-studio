@@ -69,21 +69,21 @@ enum EngravingSides {
 }
 
 model Product {
-  id          String   @id @default(cuid())
-  slug        String   @unique
-  branch      Branch
-  name        String
-  subtitle    String
-  description String
+  id              String   @id @default(cuid())
+  slug            String   @unique
+  branch          Branch
+  name            String
+  subtitle        String
+  description     String
   /// Base price in bani (RON × 100), the unit Stripe expects.
-  priceBani   Int
-  highlights  String[]
-  isFeatured  Boolean  @default(false)
-  isActive    Boolean  @default(true)
-  sortOrder   Int      @default(0)
+  priceBani       Int
+  highlights      String[]
+  isFeatured      Boolean  @default(false)
+  isActive        Boolean  @default(true)
+  sortOrder       Int      @default(0)
   /// Key of the SVG renderer in src/components/product/ProductVisual.tsx, used until photography exists.
-  visual      String
-  imageUrl    String?
+  visual          String
+  imageUrl        String?
   /// Example text drawn on the visual (not a customer default).
   sampleEngraving String[]
 
@@ -156,11 +156,15 @@ model VolumeTier {
 }
 
 model Order {
-  id       String      @id @default(cuid())
-  /// Human-facing order number, e.g. MG-2026-000123.
-  number   String      @unique
-  status   OrderStatus @default(PENDING_PAYMENT)
-  isUrgent Boolean     @default(false)
+  id          String      @id @default(cuid())
+  /// Human-facing order number, e.g. MG-2026-7KQ4XZ (random, so it reveals nothing about volume).
+  number      String      @unique
+  /// Secret for the customer's tracking link (/comanda/[number]?cheie=…).
+  accessToken String      @unique
+  status      OrderStatus @default(PENDING_PAYMENT)
+  isUrgent    Boolean     @default(false)
+  /// Paid through the development payment simulation, not Stripe.
+  isSimulated Boolean     @default(false)
 
   customerType CustomerType @default(INDIVIDUAL)
   email        String
@@ -192,12 +196,16 @@ model Order {
   stripePaymentIntentId   String?   @unique
   paidAt                  DateTime?
 
-  courierName String?
-  awbNumber   String?
-  shippedAt   DateTime?
-  notes       String?
+  courierName  String?
+  awbNumber    String?
+  shippedAt    DateTime?
+  /// Message the customer left for the workshop at checkout.
+  customerNote String?
+  /// Internal owner notes.
+  notes        String?
 
-  items OrderItem[]
+  items        OrderItem[]
+  statusEvents OrderStatusEvent[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -213,19 +221,27 @@ model OrderItem {
   productId String?
   product   Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
 
-  branch        Branch
-  productName   String
-  variantName   String
-  blankSku      String
-  quantity      Int
-  unitPriceBani Int
+  branch          Branch
+  productName     String
+  variantName     String
+  blankSku        String
+  quantity        Int
+  /// Per piece, after volume discount, including back engraving and gift box.
+  unitPriceBani   Int
+  /// Volume discount applied to the base price.
+  discountPercent Int    @default(0)
+  /// One-off charges for the line (sketch vectorisation).
+  setupFeeBani    Int    @default(0)
+  lineTotalBani   Int
 
   engravingSides  EngravingSides @default(FRONT)
   fontKey         String
   frontLines      String[]
   backLines       String[]
   symbolKey       String?
+  /// Storage id of the customer sketch (see POST /api/uploads).
   customUploadUrl String?
+  sketchName      String?
   giftPackaging   Boolean        @default(false)
 
   /// Machine the owner assigned in the production queue (suggested from Product.recommendedMachine).
@@ -233,4 +249,16 @@ model OrderItem {
 
   @@index([orderId])
   @@index([assignedMachine])
+}
+
+/// Timeline of status changes, shown to the customer on the tracking page.
+model OrderStatusEvent {
+  id        String      @id @default(cuid())
+  orderId   String
+  order     Order       @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    OrderStatus
+  note      String?
+  createdAt DateTime    @default(now())
+
+  @@index([orderId, createdAt])
 }

@@ -132,6 +132,19 @@ export function estimateLetterHeightMm(product: CatalogProduct, lines: string[],
   return Math.round(fitTextSize(text!, used) * 0.7 * 10) / 10;
 }
 
+/** One-line description of an engraving, for Stripe line items and e-mails. */
+export function describeEngraving(config: EngravingConfig): string {
+  const parts = [
+    config.frontLines.length > 0 ? `Față: ${config.frontLines.join(" / ")}` : null,
+    config.sides === "FRONT_AND_BACK" ? `Verso: ${config.backLines.join(" / ")}` : null,
+    `Font: ${getFont(config.fontKey).label}`,
+    config.symbolKey ? `Simbol: ${getSymbol(config.symbolKey)?.name ?? config.symbolKey}` : null,
+    config.sketch ? `Schiță: ${config.sketch.name}` : null,
+    config.giftPackaging ? "Cutie de catifea + certificat" : null,
+  ];
+  return parts.filter(Boolean).join(" · ");
+}
+
 export type EngravingErrorField = "variant" | "front" | "back" | "sketch" | "quantity";
 export type EngravingErrors = Partial<Record<EngravingErrorField, string>>;
 

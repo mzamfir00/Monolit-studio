@@ -52,6 +52,19 @@ Every product page (`/[branch]/produs/[slug]`) runs the step-by-step engraving c
 
 Sketch uploads are stored on local disk in `./.uploads` (override with `UPLOAD_DIR`).
 
+## Checkout and payments
+
+`/checkout` collects contact, billing (persoană fizică or juridică with CUI and Reg. Com.) and shipping details, re-prices the cart on the server and takes payment by card only.
+
+- **Without Stripe keys** (`npm run dev`), use **Simulează plata (dezvoltare)**: the order is saved as `PAID_NEW`, each piece is assigned to its M20 machine and you land on `/comanda/[orderNumber]`, where another button walks the order through the workshop stages. Under `npm start`, set `PAYMENT_SIMULATION=true` to get the same button.
+- **With Stripe**, set `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET` in `.env`, then forward webhooks locally:
+
+```bash
+stripe listen --forward-to localhost:3000/api/stripe/webhook
+```
+
+Checkout and order pages need PostgreSQL (`npm run db:migrate` and `npm run db:seed` first).
+
 ## How the theme system works
 
 Each atelier is a set of `--b-*` CSS variables under `[data-branch="…"]` in `src/app/globals.css`. Tailwind utilities such as `bg-bg`, `text-ink`, `bg-accent`, `font-display` and `rounded-branch` read those variables, so any element re-themes itself by setting `data-branch`. The page shell sets it for the whole page; product cards, cart badges and the umbrella's atelier preview set it on themselves to keep their own identity inside another atelier's page.

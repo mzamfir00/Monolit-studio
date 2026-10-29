@@ -8,6 +8,15 @@ export type Branch = (typeof BRANCHES)[number];
 export type Atelier = "umbrella" | Branch;
 
 export type Machine = "M20_NEW_GEN" | "M20_OLD_GEN_1" | "M20_OLD_GEN_2";
+export type OrderStatus =
+  | "PENDING_PAYMENT"
+  | "PAID_NEW"
+  | "ASSIGNED_TO_M20"
+  | "ENGRAVING"
+  | "FINISHING_ULTRASONIC"
+  | "PACKAGING"
+  | "SHIPPED"
+  | "CANCELLED";
 export type EngravingMethod = "DIAMOND_DRAG" | "ROTARY_MILLING";
 export type Material = "BRASS" | "STAINLESS_316L" | "SILVER_925" | "TITANIUM" | "LEATHER" | "WOOD" | "CERAMIC";
 
