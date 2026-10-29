@@ -1,6 +1,6 @@
 # Maison Gravure
 
-Multi-branch luxury engraving storefront (Romanian, RON, card-only payments) and — in later phases — the workshop ERP for three Gravograph M20 machines. The full product specification lives in [CLAUDE.md](./CLAUDE.md).
+Multi-branch luxury engraving storefront (Romanian, RON, card-only payments) and the owner's workshop portal for three Gravograph M20 machines. The full product specification lives in [CLAUDE.md](./CLAUDE.md).
 
 | Atelier              | Route        | Identity                                                                       |
 | -------------------- | ------------ | ------------------------------------------------------------------------------ |
@@ -12,7 +12,7 @@ Multi-branch luxury engraving storefront (Romanian, RON, card-only payments) and
 
 ## Stack
 
-Next.js 15 (App Router, TypeScript) · Tailwind CSS 4 · Lucide · Zustand 5 · Prisma 7 on PostgreSQL.
+Next.js 15 (App Router, TypeScript) · Tailwind CSS 4 · Lucide · Zustand 5 · Prisma 7 on PostgreSQL · Auth.js 5.
 
 ## Getting started
 
@@ -24,7 +24,7 @@ npm install
 cp .env.example .env
 ```
 
-The storefront renders from `src/lib/seed-data.ts`, so `npm run dev` works without a database. To load the catalogue into PostgreSQL, point `DATABASE_URL` in `.env` at your database, then:
+The catalogue lives in PostgreSQL, so point `DATABASE_URL` in `.env` at your database before running the app, then create the schema and load the 12 starter products:
 
 ```bash
 npm run db:migrate
@@ -36,15 +36,16 @@ npm run db:seed
 
 ## Scripts
 
-| Script                               | Purpose                                      |
-| ------------------------------------ | -------------------------------------------- |
-| `npm run dev`                        | Development server on http://localhost:3000  |
-| `npm run build` / `npm start`        | Production build / serve                     |
-| `npm run lint` · `npm run typecheck` | ESLint · TypeScript                          |
-| `npm run db:migrate`                 | Apply Prisma migrations (dev)                |
-| `npm run db:deploy`                  | Apply migrations in production               |
-| `npm run db:seed`                    | Upsert the 12-product catalogue (idempotent) |
-| `npm run db:studio`                  | Prisma Studio                                |
+| Script                               | Purpose                                                     |
+| ------------------------------------ | ----------------------------------------------------------- |
+| `npm run dev`                        | Development server on http://localhost:3000                 |
+| `npm run build` / `npm start`        | Production build / serve                                    |
+| `npm run lint` · `npm run typecheck` | ESLint · TypeScript                                         |
+| `npm run db:migrate`                 | Apply Prisma migrations (dev)                               |
+| `npm run db:deploy`                  | Apply migrations in production                              |
+| `npm run db:seed`                    | Add missing starter products (`-- --reset` overwrites them) |
+| `npm run db:studio`                  | Prisma Studio                                               |
+| `npm run admin:credentials -- "…"`   | Print the owner password hash and auth secret               |
 
 ## Personalization configurator
 
@@ -64,6 +65,25 @@ stripe listen --forward-to localhost:3000/api/stripe/webhook
 ```
 
 Checkout and order pages need PostgreSQL (`npm run db:migrate` and `npm run db:seed` first).
+
+## Workshop portal (`/admin`)
+
+Owner-only. Create the credentials once and paste the two printed lines, plus your e-mail, into `.env`:
+
+```bash
+npm run admin:credentials -- "o parolă de cel puțin 12 caractere"
+```
+
+```dotenv
+ADMIN_EMAIL="atelier@exemplu.ro"
+```
+
+Then sign in at `/admin/login`.
+
+- **Panou** — revenue per atelier, the load on each M20 by workshop stage, urgent orders and blanks running low.
+- **Producție M20** — the queue as a board, one column per stage, filterable by machine and stage. Each piece shows its text in the chosen font, can be moved to another M20, and has **Descarcă SVG (mm) · Față / Verso**: a Gravostyle-ready file whose `width`/`height` are the blank's engraving area in millimetres, with a cyan guide outline of the blank, the vector symbol and the centred text. **Fișă tehnică de atelier** opens the printable job sheet.
+- **Comenzi** — search, PF/PJ billing and shipping details, the status history, and the courier + AWB form that marks an order shipped.
+- **Produse** — add, edit, duplicate, hide or delete products: prices, stock (also editable inline in the list), finishes, volume tiers and the M20 parameters (blank SKU, material, engraving area and depth, machine, diamond or rotary, tool). Changes appear in the shop immediately. Products that were already ordered can only be hidden.
 
 ## How the theme system works
 

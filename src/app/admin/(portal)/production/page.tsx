@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
-import type { ReactNode } from "react";
+import { FilterChip } from "@/components/admin/FilterChip";
 import { ProductionCard } from "@/components/admin/ProductionCard";
 import { STATION_COLORS } from "@/lib/admin-ui";
 import { cn } from "@/lib/format";
@@ -14,21 +13,6 @@ type Search = Promise<{ masina?: string; status?: string }>;
 
 const isMachine = (value?: string): value is Machine => MACHINE_ORDER.includes(value as Machine);
 const isStatus = (value?: string): value is OrderStatus => WORKFLOW_STEPS.some((step) => step.status === value);
-
-function Chip({ href, active, children }: { href: string; active: boolean; children: ReactNode }) {
-  return (
-    <Link
-      href={href}
-      aria-current={active ? "true" : undefined}
-      className={cn(
-        "inline-flex items-center gap-2 rounded-full border px-3.5 py-1.5 text-sm transition-colors",
-        active ? "border-ink bg-ink text-bg" : "border-line bg-bg text-muted hover:border-line-strong hover:text-ink",
-      )}
-    >
-      {children}
-    </Link>
-  );
-}
 
 export default async function ProductionPage({ searchParams }: { searchParams: Search }) {
   const params = await searchParams;
@@ -61,22 +45,22 @@ export default async function ProductionPage({ searchParams }: { searchParams: S
 
       <div className="grid gap-3">
         <div role="group" aria-label="Filtru mașină" className="flex flex-wrap gap-2">
-          <Chip href={href({ masina: undefined })} active={!machine}>
+          <FilterChip href={href({ masina: undefined })} active={!machine}>
             Toate mașinile
-          </Chip>
+          </FilterChip>
           {MACHINE_ORDER.map((key) => (
-            <Chip key={key} href={href({ masina: key })} active={machine === key}>
+            <FilterChip key={key} href={href({ masina: key })} active={machine === key}>
               {MACHINES[key].shortLabel}
               <span className="font-mono text-xs opacity-70">{counts.byMachine[key]}</span>
-            </Chip>
+            </FilterChip>
           ))}
         </div>
         <div role="group" aria-label="Filtru etapă" className="flex flex-wrap gap-2">
-          <Chip href={href({ status: undefined })} active={!status}>
+          <FilterChip href={href({ status: undefined })} active={!status}>
             Toate etapele
-          </Chip>
+          </FilterChip>
           {WORKFLOW_STEPS.map((step) => (
-            <Chip key={step.status} href={href({ status: step.status })} active={status === step.status}>
+            <FilterChip key={step.status} href={href({ status: step.status })} active={status === step.status}>
               <span
                 aria-hidden="true"
                 className={cn("size-2 rounded-full", step.status === "SHIPPED" && "bg-current")}
@@ -88,7 +72,7 @@ export default async function ProductionPage({ searchParams }: { searchParams: S
                   {counts.byStatus[step.status as keyof typeof counts.byStatus]}
                 </span>
               )}
-            </Chip>
+            </FilterChip>
           ))}
         </div>
       </div>

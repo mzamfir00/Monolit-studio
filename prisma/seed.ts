@@ -8,8 +8,17 @@ if (!connectionString) throw new Error("DATABASE_URL is not set — copy .env.ex
 
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
 
+// The admin portal owns the catalogue once it is loaded: by default the seed only adds missing products.
+// `npm run db:seed -- --reset` rewrites the seed products (prices, stock, finishes) from the dataset.
+const reset = process.argv.includes("--reset");
+
 async function main() {
+  let skipped = 0;
   for (const { variants, volumeTiers, ...product } of products) {
+    if (!reset && (await prisma.product.findUnique({ where: { slug: product.slug }, select: { id: true } }))) {
+      skipped++;
+      continue;
+    }
     // Idempotent: upsert the product by slug, then rebuild its variants and tiers from the dataset.
     await prisma.$transaction(async (tx) => {
       const { id } = await tx.product.upsert({
@@ -28,7 +37,9 @@ async function main() {
     });
     console.log(`✓ ${product.branch.padEnd(9)} ${product.blankSku.padEnd(18)} ${product.name}`);
   }
-  console.log(`Seeded ${products.length} products.`);
+  console.log(
+    `Seeded ${products.length - skipped} products${skipped ? `, kept ${skipped} existing (use --reset to overwrite them)` : ""}.`,
+  );
 }
 
 main()
