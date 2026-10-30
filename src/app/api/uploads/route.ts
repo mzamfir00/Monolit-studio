@@ -1,15 +1,12 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, writeFile } from "node:fs/promises";
-import path from "node:path";
 import { NextResponse } from "next/server";
-import { MAX_UPLOAD_BYTES, UPLOAD_FORMATS_LABEL } from "@/lib/uploads";
+import { saveSketch } from "@/lib/server/sketches";
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_MB, UPLOAD_FORMATS_LABEL } from "@/lib/uploads";
 
-// Customer sketches and logos for vectorisation. Files go to private disk storage (UPLOAD_DIR) and are
-// never served back from this route; the admin portal will read them for the job sheet.
+// Customer sketches and logos for vectorisation. Files are stored privately in the database and never served
+// back from this route; only the admin portal downloads them (GET /api/admin/uploads/[id]).
 
 export const runtime = "nodejs";
-
-const UPLOAD_DIR = process.env.UPLOAD_DIR ?? path.join(process.cwd(), ".uploads");
 
 interface Kind {
   ext: string;
@@ -40,10 +37,11 @@ function displayName(name: string) {
 }
 
 const fail = (status: number, error: string) => NextResponse.json({ error }, { status });
+const TOO_LARGE = `Fișierul depășește ${MAX_UPLOAD_MB} MB.`;
 
 export async function POST(request: Request) {
   const declared = Number(request.headers.get("content-length") ?? 0);
-  if (declared > MAX_UPLOAD_BYTES + 64 * 1024) return fail(413, "Fișierul depășește 10 MB.");
+  if (declared > MAX_UPLOAD_BYTES + 64 * 1024) return fail(413, TOO_LARGE);
 
   let form: FormData;
   try {
@@ -53,20 +51,20 @@ export async function POST(request: Request) {
   }
   const file = form.get("file");
   if (!(file instanceof File) || file.size === 0) return fail(400, "Alege un fișier.");
-  if (file.size > MAX_UPLOAD_BYTES) return fail(413, "Fișierul depășește 10 MB.");
+  if (file.size > MAX_UPLOAD_BYTES) return fail(413, TOO_LARGE);
 
   const bytes = new Uint8Array(await file.arrayBuffer());
   const kind = sniff(bytes);
   if (!kind) return fail(415, `Acceptăm ${UPLOAD_FORMATS_LABEL}.`);
 
   const id = `${randomUUID()}.${kind.ext}`;
+  const name = displayName(file.name);
   try {
-    await mkdir(UPLOAD_DIR, { recursive: true });
-    await writeFile(path.join(UPLOAD_DIR, id), bytes, { flag: "wx" });
+    await saveSketch({ id, name, type: kind.type, bytes });
   } catch (error) {
     console.error("Sketch upload failed", error);
     return fail(500, "Nu am putut salva fișierul. Încearcă din nou.");
   }
 
-  return NextResponse.json({ id, name: displayName(file.name), size: file.size, type: kind.type }, { status: 201 });
+  return NextResponse.json({ id, name, size: file.size, type: kind.type }, { status: 201 });
 }

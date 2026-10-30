@@ -5,13 +5,14 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "vercel-build": "sh scripts/vercel-build.sh",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "postinstall": "prisma generate",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
-    "db:seed": "prisma db seed",
+    "db:seed": "tsx prisma/seed.ts",
     "db:studio": "prisma studio",
     "format": "prettier --write .",
     "admin:credentials": "tsx scripts/admin-credentials.ts"

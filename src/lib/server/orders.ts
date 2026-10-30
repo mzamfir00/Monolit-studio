@@ -1,7 +1,5 @@
 import "server-only";
 import { randomBytes, randomInt, timingSafeEqual } from "node:crypto";
-import { access } from "node:fs/promises";
-import path from "node:path";
 import { Prisma, type OrderStatus } from "@/generated/prisma/client";
 import { blankSpecOf } from "@/lib/blank-spec";
 import type { CheckoutLine, CustomerDetails } from "@/lib/checkout";
@@ -12,8 +10,7 @@ import { db } from "@/lib/prisma";
 import type { CatalogProduct } from "@/lib/types";
 import { WORKFLOW_STEPS, machineForBranch } from "@/lib/workshop";
 import { loadProducts } from "./catalog-db";
-
-const UPLOAD_DIR = process.env.UPLOAD_DIR ?? path.join(process.cwd(), ".uploads");
+import { sketchExists } from "./sketches";
 
 export interface PricedLine extends CheckoutLine {
   productId: string;
@@ -41,15 +38,6 @@ export const ORDER_NUMBER_PATTERN = /^MG-\d{4}-[A-HJ-NP-Z2-9]{6}$/;
 function orderNumber() {
   const suffix = Array.from({ length: 6 }, () => ORDER_ALPHABET[randomInt(ORDER_ALPHABET.length)]).join("");
   return `MG-${new Date().getFullYear()}-${suffix}`;
-}
-
-async function sketchExists(id: string) {
-  try {
-    await access(path.join(UPLOAD_DIR, path.basename(id)));
-    return true;
-  } catch {
-    return false;
-  }
 }
 
 /** Re-prices and re-validates every line against the database; client prices are never trusted. */

@@ -51,7 +51,7 @@ npm run db:seed
 
 Every product page (`/[branch]/produs/[slug]`) runs the step-by-step engraving configurator: finish, front / back, typeface, text lines limited by the blank's real engraving area, a vector symbol library, an optional sketch upload and the velvet gift box. The live SVG preview and the RON total update as you type, and configured pieces from every branch go into the persisted Universal Cart.
 
-Sketch uploads are stored on local disk in `./.uploads` (override with `UPLOAD_DIR`).
+Sketch uploads (up to 4 MB) are stored privately in PostgreSQL and can only be downloaded from the workshop portal.
 
 ## Checkout and payments
 
@@ -84,6 +84,17 @@ Then sign in at `/admin/login`.
 - **Producție M20** — the queue as a board, one column per stage, filterable by machine and stage. Each piece shows its text in the chosen font, can be moved to another M20, and has **Descarcă SVG (mm) · Față / Verso**: a Gravostyle-ready file whose `width`/`height` are the blank's engraving area in millimetres, with a cyan guide outline of the blank, the vector symbol and the centred text. **Fișă tehnică de atelier** opens the printable job sheet.
 - **Comenzi** — search, PF/PJ billing and shipping details, the status history, and the courier + AWB form that marks an order shipped.
 - **Produse** — add, edit, duplicate, hide or delete products: prices, stock (also editable inline in the list), finishes, volume tiers and the M20 parameters (blank SKU, material, engraving area and depth, machine, diamond or rotary, tool). Changes appear in the shop immediately. Products that were already ordered can only be hidden.
+
+## Deploy to Vercel
+
+The repository deploys to [Vercel](https://vercel.com) with a [Neon](https://neon.tech) PostgreSQL database. Every push to the production branch redeploys; each build applies new database migrations and, on an empty database, loads the 12 starter products.
+
+1. In Vercel, **Add New → Project** and import this GitHub repository. Keep the detected settings (`vercel.json` sets the build command and the Frankfurt region) and deploy. The first build skips the database steps because none is connected yet.
+2. In the project, open **Storage → Create Database → Neon**, choose the **Frankfurt (eu-central-1)** region and connect it to the project. This adds `DATABASE_URL` and `DATABASE_URL_UNPOOLED`.
+3. In **Settings → Environment Variables**, add `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH` and `AUTH_SECRET` (from `npm run admin:credentials`). Until Stripe is set up, also add `PAYMENT_SIMULATION` = `true` to test orders without real payments.
+4. **Deployments → ⋯ → Redeploy**. The site is then live at the project's `.vercel.app` address, and the workshop portal at `/admin`.
+
+Before taking real orders, remove `PAYMENT_SIMULATION` and add `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`, with a Stripe webhook pointing at `https://<domain>/api/stripe/webhook` (events `checkout.session.completed` and `checkout.session.expired`).
 
 ## How the theme system works
 

@@ -4,7 +4,7 @@ import { useRef, useState, type DragEvent } from "react";
 import { FileImage, Loader2, Upload, X } from "lucide-react";
 import type { UploadedSketch } from "@/lib/engraving";
 import { cn } from "@/lib/format";
-import { MAX_UPLOAD_BYTES, UPLOAD_ACCEPT, UPLOAD_FORMATS_LABEL } from "@/lib/uploads";
+import { MAX_UPLOAD_BYTES, MAX_UPLOAD_MB, UPLOAD_ACCEPT, UPLOAD_FORMATS_LABEL } from "@/lib/uploads";
 
 const kb = (bytes: number) =>
   bytes >= 1024 * 1024 ? `${(bytes / 1024 / 1024).toFixed(1).replace(".", ",")} MB` : `${Math.ceil(bytes / 1024)} KB`;
@@ -36,7 +36,7 @@ export function SketchUpload({
   async function upload(file: File) {
     setError(null);
     if (file.size > MAX_UPLOAD_BYTES) {
-      setError("Fișierul depășește 10 MB.");
+      setError(`Fișierul depășește ${MAX_UPLOAD_MB} MB.`);
       return;
     }
     const current = ++attempt.current;
@@ -122,7 +122,7 @@ export function SketchUpload({
           )}
           <span className="font-medium">{status === "uploading" ? "Se încarcă…" : "Trage fișierul aici sau alege-l"}</span>
           <span className="text-xs text-muted">
-            {UPLOAD_FORMATS_LABEL} · maximum 10 MB · o fotografie clară, pe fundal deschis
+            {UPLOAD_FORMATS_LABEL} · maximum {MAX_UPLOAD_MB} MB · o fotografie clară, pe fundal deschis
           </span>
         </button>
       )}

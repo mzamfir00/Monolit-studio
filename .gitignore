@@ -20,5 +20,3 @@ next-env.d.ts
 npm-debug.log*
 .vercel
 
-# customer sketch uploads (local storage)
-/.uploads/

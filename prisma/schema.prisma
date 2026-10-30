@@ -265,3 +265,15 @@ model OrderStatusEvent {
 
   @@index([orderId, createdAt])
 }
+
+/// Customer sketch or logo for vectorisation (POST /api/uploads). Stored in the database so serverless
+/// hosting needs no disk; only the admin portal reads it back, always as a download.
+model Upload {
+  /// "<uuid>.<ext>", referenced by OrderItem.customUploadUrl.
+  id        String   @id
+  name      String
+  type      String
+  size      Int
+  data      Bytes
+  createdAt DateTime @default(now())
+}

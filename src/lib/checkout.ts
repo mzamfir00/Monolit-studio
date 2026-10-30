@@ -2,6 +2,7 @@
 // the server action is still the authority and re-validates everything it receives.
 
 import { ENGRAVING_FONTS, type EngravingConfig, type EngravingSides, type UploadedSketch } from "./engraving";
+import { SKETCH_ID } from "./uploads";
 
 export const COUNTIES = [
   "Alba",
@@ -201,7 +202,7 @@ function parseSketch(value: unknown): UploadedSketch | null | undefined {
   if (value === null) return null;
   if (typeof value !== "object" || value === undefined) return undefined;
   const sketch = value as Record<string, unknown>;
-  if (!isString(sketch.id) || !/^[0-9a-f-]{36}\.(png|jpg|webp|heic|pdf|svg)$/.test(sketch.id)) return undefined;
+  if (!isString(sketch.id) || !SKETCH_ID.test(sketch.id)) return undefined;
   if (!isString(sketch.name) || !isString(sketch.type) || typeof sketch.size !== "number") return undefined;
   return { id: sketch.id, name: sketch.name.slice(0, 120), size: sketch.size, type: sketch.type };
 }

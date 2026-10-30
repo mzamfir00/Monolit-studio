@@ -3,7 +3,7 @@ import { PrismaPg } from "@prisma/adapter-pg";
 import { PrismaClient } from "../src/generated/prisma/client";
 import { products } from "../src/lib/seed-data";
 
-const connectionString = process.env.DATABASE_URL;
+const connectionString = process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;
 if (!connectionString) throw new Error("DATABASE_URL is not set — copy .env.example to .env.");
 
 const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) });
@@ -11,8 +11,14 @@ const prisma = new PrismaClient({ adapter: new PrismaPg({ connectionString }) })
 // The admin portal owns the catalogue once it is loaded: by default the seed only adds missing products.
 // `npm run db:seed -- --reset` rewrites the seed products (prices, stock, finishes) from the dataset.
 const reset = process.argv.includes("--reset");
+// Deploy builds bootstrap an empty database only, so products deleted in the admin stay deleted.
+const ifEmpty = process.argv.includes("--if-empty");
 
 async function main() {
+  if (ifEmpty && (await prisma.product.count()) > 0) {
+    console.log("Catalogue already loaded; seed skipped.");
+    return;
+  }
   let skipped = 0;
   for (const { variants, volumeTiers, ...product } of products) {
     if (!reset && (await prisma.product.findUnique({ where: { slug: product.slug }, select: { id: true } }))) {
