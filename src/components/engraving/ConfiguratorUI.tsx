@@ -3,6 +3,10 @@
 import type { ReactNode } from "react";
 import { cn } from "@/lib/format";
 
+// The cfg-* class names are styling hooks: each atelier re-cuts the configurator in src/app/branch-systems.css.
+
+const ROMAN = ["I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X"];
+
 /** Numbered configurator step: a fieldset labelled by its visible heading, so its options are announced as a group. */
 export function Step({
   id,
@@ -22,17 +26,21 @@ export function Step({
   children: ReactNode;
 }) {
   return (
-    <fieldset id={id} aria-labelledby={`${id}-title`} className="grid scroll-mt-24 gap-5 border-t border-line pt-8">
-      <div className="flex items-baseline justify-between gap-4">
-        <div className="flex items-baseline gap-4">
-          <span aria-hidden="true" className="font-mono text-xs text-metal-text">
+    <fieldset
+      id={id}
+      aria-labelledby={`${id}-title`}
+      className="cfg-step grid min-w-0 scroll-mt-24 gap-5 border-t border-line pt-8"
+    >
+      <div className="cfg-step-head flex items-baseline justify-between gap-4">
+        <div className="cfg-step-label flex items-baseline gap-4">
+          <span aria-hidden="true" data-roman={ROMAN[index - 1]} className="cfg-step-index font-mono text-xs text-metal-text">
             {String(index).padStart(2, "0")}
           </span>
-          <h2 id={`${id}-title`} className="display text-2xl">
+          <h2 id={`${id}-title`} className="cfg-step-title display text-2xl">
             {title}
           </h2>
         </div>
-        {aside && <div className="shrink-0 text-sm text-muted">{aside}</div>}
+        {aside && <div className="cfg-step-aside shrink-0 text-sm text-muted">{aside}</div>}
       </div>
       {description && <div className="-mt-2 text-sm text-muted">{description}</div>}
       {children}
@@ -46,7 +54,7 @@ export function Step({
 }
 
 export const optionClass =
-  "relative flex cursor-pointer items-center gap-3 rounded-branch border border-line bg-bg px-4 py-3 text-left transition-colors hover:border-line-strong has-checked:border-ink has-checked:bg-surface has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent has-disabled:cursor-not-allowed has-disabled:opacity-50";
+  "cfg-option relative flex cursor-pointer items-center gap-3 rounded-branch border border-line bg-bg px-4 py-3 text-left transition-colors hover:border-line-strong has-checked:border-ink has-checked:bg-surface has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent has-disabled:cursor-not-allowed has-disabled:opacity-50";
 
 /** Radio rendered as a selectable card. */
 export function OptionCard({
@@ -105,7 +113,7 @@ export function Toggle({
       aria-checked={checked}
       onClick={() => onChange(!checked)}
       className={cn(
-        "flex w-full items-center gap-4 rounded-branch border px-4 py-4 text-left transition-colors",
+        "cfg-toggle flex w-full items-center gap-4 rounded-branch border px-4 py-4 text-left transition-colors",
         checked ? "border-ink bg-surface" : "border-line bg-bg hover:border-line-strong",
       )}
     >
@@ -118,7 +126,7 @@ export function Toggle({
       <span
         aria-hidden="true"
         className={cn(
-          "relative h-6 w-11 shrink-0 rounded-full border transition-colors",
+          "cfg-switch relative h-6 w-11 shrink-0 rounded-full border transition-colors",
           checked ? "border-accent bg-accent" : "border-line-strong bg-surface",
         )}
       >

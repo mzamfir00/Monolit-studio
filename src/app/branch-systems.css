@@ -1,0 +1,527 @@
+/*
+ * Branch geometry systems
+ * -----------------------
+ * globals.css gives each atelier its colours and typefaces; this layer gives it a shape. Shared markup
+ * (buttons, the configurator's cfg-* hooks, decorative frames) is re-cut per atelier through data-branch:
+ *   pet        stitched leather & pedigree certificates: soft curves, dashed inner seams
+ *   jewelry    haute joaillerie editorial: zero radius, 0.5px hairlines, roman numerals
+ *   vault      CNC spec sheet: machined panels, copper corner brackets, rulers, monospace read-outs
+ *   corporate  Swiss architectural grid: continuous 1px black rules, indexed cells
+ * These rules are unlayered on purpose, so they take precedence over Tailwind utilities on the same element.
+ */
+
+/* ── Decorative primitives ──────────────────────────────────────────────────────────────────── */
+
+/* Dashed inner seam, like the stitching on a leather collar. Follows border-radius. */
+.stitch {
+  outline: 2px dashed color-mix(in srgb, var(--b-accent) 22%, transparent);
+  outline-offset: -9px;
+}
+
+/* Machined L-brackets on the four corners of a panel. */
+.corner-brackets {
+  --bracket: var(--b-accent);
+  --bracket-size: 12px;
+  background-image:
+    linear-gradient(var(--bracket), var(--bracket)), linear-gradient(var(--bracket), var(--bracket)),
+    linear-gradient(var(--bracket), var(--bracket)), linear-gradient(var(--bracket), var(--bracket)),
+    linear-gradient(var(--bracket), var(--bracket)), linear-gradient(var(--bracket), var(--bracket)),
+    linear-gradient(var(--bracket), var(--bracket)), linear-gradient(var(--bracket), var(--bracket));
+  background-size:
+    var(--bracket-size) 1px,
+    1px var(--bracket-size),
+    var(--bracket-size) 1px,
+    1px var(--bracket-size),
+    var(--bracket-size) 1px,
+    1px var(--bracket-size),
+    var(--bracket-size) 1px,
+    1px var(--bracket-size);
+  background-position:
+    0 0,
+    0 0,
+    100% 0,
+    100% 0,
+    0 100%,
+    0 100%,
+    100% 100%,
+    100% 100%;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+}
+
+/* Millimetre ruler ticks: a short tick every 8px, a long one every 40px. */
+.ruler-x {
+  height: 12px;
+  background:
+    repeating-linear-gradient(to right, var(--b-muted) 0 1px, transparent 1px 40px) 0 0 / 100% 12px no-repeat,
+    repeating-linear-gradient(to right, var(--b-line-strong) 0 1px, transparent 1px 8px) 0 100% / 100% 6px no-repeat;
+}
+.ruler-y {
+  width: 12px;
+  background:
+    repeating-linear-gradient(to bottom, var(--b-muted) 0 1px, transparent 1px 40px) 0 0 / 12px 100% no-repeat,
+    repeating-linear-gradient(to bottom, var(--b-line-strong) 0 1px, transparent 1px 8px) 100% 0 / 6px 100% no-repeat;
+}
+
+/* Copper text cast from molten metal. */
+.molten {
+  background: linear-gradient(100deg, #f4b07a 0%, var(--b-accent) 38%, #8a4316 72%, #e8925a 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* ── Buttons ────────────────────────────────────────────────────────────────────────────────── */
+
+[data-branch="pet"] .btn-primary:hover {
+  background-color: var(--b-metal-text);
+  color: var(--b-panel);
+}
+[data-branch="jewelry"] .btn-primary:hover {
+  background-color: var(--b-accent);
+  color: var(--b-ink);
+}
+[data-branch="jewelry"] .btn-ghost {
+  border-width: 0.5px;
+  border-color: var(--b-ink);
+}
+[data-branch="vault"] .btn-primary {
+  box-shadow: 0 0 28px -10px rgb(217 119 54 / 0.8);
+}
+[data-branch="vault"] .btn-primary:hover {
+  background-color: #ec8a48;
+}
+[data-branch="corporate"] .btn-primary:hover {
+  background-color: var(--b-accent);
+  color: var(--b-accent-ink);
+}
+[data-branch="corporate"] .btn-ghost {
+  border-color: var(--b-grid);
+}
+
+/* ── Configurator: Maison Pedigree ──────────────────────────────────────────────────────────── */
+
+[data-branch="pet"] .cfg-steps {
+  gap: 1.25rem;
+}
+[data-branch="pet"] .cfg-step,
+[data-branch="pet"] .cfg-summary,
+[data-branch="pet"] .cfg-total {
+  border: 1px solid color-mix(in srgb, var(--b-accent) 15%, transparent);
+  border-radius: 1.75rem;
+  background-color: var(--b-panel);
+  outline: 2px dashed color-mix(in srgb, var(--b-accent) 20%, transparent);
+  outline-offset: -9px;
+}
+[data-branch="pet"] .cfg-step {
+  padding: 1.75rem 1.5rem 1.5rem;
+}
+[data-branch="pet"] .cfg-step-label {
+  align-items: center;
+}
+[data-branch="pet"] .cfg-step-index {
+  display: inline-grid;
+  place-items: center;
+  min-width: 2rem;
+  height: 2rem;
+  border-radius: 999px;
+  background: var(--b-accent);
+  color: var(--b-panel);
+  font-family: var(--b-font-sans);
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+[data-branch="pet"] .cfg-option:has(:checked),
+[data-branch="pet"] .cfg-toggle[aria-checked="true"] {
+  border-color: var(--b-accent);
+  background-color: var(--b-bg);
+  box-shadow: inset 0 0 0 1px var(--b-accent);
+}
+[data-branch="pet"] .cfg-font:has(:checked),
+[data-branch="pet"] .cfg-tab[aria-pressed="true"] {
+  border-color: var(--b-accent);
+  background-color: var(--b-accent);
+  color: var(--b-panel);
+}
+[data-branch="pet"] .cfg-input {
+  border-radius: 999px;
+  background-color: var(--b-bg);
+  padding-inline: 1.25rem;
+}
+[data-branch="pet"] .cfg-toggle {
+  border-radius: 1.25rem;
+}
+[data-branch="pet"] .cfg-qty {
+  border-radius: 999px;
+}
+[data-branch="pet"] .cfg-preview {
+  border-radius: 16rem 16rem 1.75rem 1.75rem;
+  border-color: color-mix(in srgb, var(--b-accent) 15%, transparent);
+  outline: 2px dashed color-mix(in srgb, var(--b-accent) 20%, transparent);
+  outline-offset: -10px;
+  background-image: radial-gradient(circle at 50% 30%, rgb(250 246 240 / 0.9), transparent 65%), var(--grain);
+  background-size:
+    auto,
+    180px 180px;
+}
+[data-branch="pet"] .cfg-preview-toggle {
+  top: auto;
+  bottom: 1.25rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: var(--b-panel);
+}
+[data-branch="pet"] .cfg-mobilebar {
+  background-color: color-mix(in srgb, var(--b-panel) 95%, transparent);
+}
+
+/* ── Configurator: Maison Aurum ─────────────────────────────────────────────────────────────── */
+
+[data-branch="jewelry"] .cfg-steps {
+  gap: 0;
+}
+[data-branch="jewelry"] .cfg-step {
+  border-top: 0.5px solid var(--b-line);
+  padding-block: 2.25rem;
+  gap: 1.5rem;
+}
+[data-branch="jewelry"] .cfg-step-index {
+  font-size: 0;
+  letter-spacing: 0;
+}
+[data-branch="jewelry"] .cfg-step-index::before {
+  content: attr(data-roman) ".";
+  font-family: var(--b-font-display);
+  font-style: italic;
+  font-size: 1.05rem;
+  color: var(--b-metal-text);
+}
+[data-branch="jewelry"] .cfg-step-title {
+  font-size: 1.85rem;
+  letter-spacing: -0.02em;
+}
+[data-branch="jewelry"] .cfg-option,
+[data-branch="jewelry"] .cfg-toggle,
+[data-branch="jewelry"] .cfg-font,
+[data-branch="jewelry"] .cfg-tab,
+[data-branch="jewelry"] .cfg-qty,
+[data-branch="jewelry"] .cfg-summary,
+[data-branch="jewelry"] .cfg-total,
+[data-branch="jewelry"] .cfg-preview {
+  border-width: 0.5px;
+  border-radius: 0;
+}
+[data-branch="jewelry"] .cfg-option:has(:checked),
+[data-branch="jewelry"] .cfg-toggle[aria-checked="true"] {
+  border-color: var(--b-ink);
+  background-color: var(--b-panel);
+  box-shadow: inset 0 -2px 0 var(--b-accent);
+}
+[data-branch="jewelry"] .cfg-font:has(:checked),
+[data-branch="jewelry"] .cfg-tab[aria-pressed="true"] {
+  border-color: var(--b-ink);
+  background-color: var(--b-ink);
+  color: var(--b-bg);
+}
+[data-branch="jewelry"] .cfg-tab {
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+[data-branch="jewelry"] .cfg-input {
+  border-width: 0 0 0.5px;
+  border-radius: 0;
+  background-color: transparent;
+  padding-inline: 0;
+}
+[data-branch="jewelry"] .cfg-switch,
+[data-branch="jewelry"] .cfg-switch > span,
+[data-branch="jewelry"] .cfg-preview-toggle,
+[data-branch="jewelry"] .cfg-preview-toggle button {
+  border-radius: 0;
+}
+[data-branch="jewelry"] .cfg-summary,
+[data-branch="jewelry"] .cfg-total {
+  background-color: var(--b-panel);
+}
+[data-branch="jewelry"] .cfg-summary {
+  margin-top: 2.5rem;
+  padding: 1.5rem;
+}
+@media (min-width: 640px) {
+  [data-branch="jewelry"] .cfg-summary {
+    padding: 2.5rem;
+  }
+}
+[data-branch="jewelry"] .cfg-preview {
+  background-image: none;
+  background-color: var(--b-panel);
+  outline: 0.5px solid var(--b-accent);
+  outline-offset: -14px;
+}
+
+/* ── Configurator: The Brass Vault ──────────────────────────────────────────────────────────── */
+
+[data-branch="vault"] .cfg-steps {
+  gap: 1rem;
+}
+[data-branch="vault"] .cfg-step,
+[data-branch="vault"] .cfg-total {
+  border: 1px solid var(--b-line);
+  background-color: var(--b-surface);
+  padding: 1.25rem;
+  gap: 1.25rem;
+  /* Same drawing as .corner-brackets, in copper. */
+  background-image:
+    linear-gradient(var(--b-accent), var(--b-accent)), linear-gradient(var(--b-accent), var(--b-accent)),
+    linear-gradient(var(--b-accent), var(--b-accent)), linear-gradient(var(--b-accent), var(--b-accent)),
+    linear-gradient(var(--b-accent), var(--b-accent)), linear-gradient(var(--b-accent), var(--b-accent)),
+    linear-gradient(var(--b-accent), var(--b-accent)), linear-gradient(var(--b-accent), var(--b-accent));
+  background-size:
+    12px 1px,
+    1px 12px,
+    12px 1px,
+    1px 12px,
+    12px 1px,
+    1px 12px,
+    12px 1px,
+    1px 12px;
+  background-position:
+    0 0,
+    0 0,
+    100% 0,
+    100% 0,
+    0 100%,
+    0 100%,
+    100% 100%,
+    100% 100%;
+  background-repeat: no-repeat;
+  background-origin: border-box;
+}
+[data-branch="vault"] .cfg-step-head {
+  border-bottom: 1px dashed var(--b-line);
+  padding-bottom: 0.9rem;
+}
+[data-branch="vault"] .cfg-step-label {
+  align-items: baseline;
+  gap: 0.75rem;
+}
+[data-branch="vault"] .cfg-step-index {
+  font-size: 0.7rem;
+  letter-spacing: 0.14em;
+  color: var(--b-accent);
+}
+[data-branch="vault"] .cfg-step-index::before {
+  content: "PAS ";
+}
+[data-branch="vault"] .cfg-step-index::after {
+  content: " //";
+}
+[data-branch="vault"] .cfg-step-title {
+  font-family: var(--b-font-mono);
+  font-size: 0.8rem;
+  font-weight: 500;
+  letter-spacing: 0.14em;
+}
+[data-branch="vault"] .cfg-option:has(:checked),
+[data-branch="vault"] .cfg-toggle[aria-checked="true"] {
+  border-color: var(--b-accent);
+  background-color: color-mix(in srgb, var(--b-accent) 8%, var(--b-bg));
+  box-shadow: 0 0 22px -10px var(--b-accent);
+}
+[data-branch="vault"] .cfg-option,
+[data-branch="vault"] .cfg-toggle,
+[data-branch="vault"] .cfg-input {
+  background-color: var(--b-bg);
+}
+[data-branch="vault"] .cfg-font,
+[data-branch="vault"] .cfg-tab,
+[data-branch="vault"] .cfg-switch,
+[data-branch="vault"] .cfg-switch > span,
+[data-branch="vault"] .cfg-preview-toggle,
+[data-branch="vault"] .cfg-preview-toggle button {
+  border-radius: 2px;
+}
+[data-branch="vault"] .cfg-font:has(:checked),
+[data-branch="vault"] .cfg-tab[aria-pressed="true"] {
+  border-color: var(--b-accent);
+  background-color: var(--b-accent);
+  color: var(--b-accent-ink);
+}
+[data-branch="vault"] .cfg-tab {
+  font-family: var(--b-font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+[data-branch="vault"] .cfg-summary {
+  border: 1px solid var(--b-line);
+  border-top: 2px solid var(--b-accent);
+  background-color: var(--b-surface);
+}
+[data-branch="vault"] .cfg-summary dl {
+  font-family: var(--b-font-mono);
+  font-size: 0.8rem;
+}
+/* Blueprint sheet: 1 cm grid, rulers along the top and left edges, copper corner brackets. */
+[data-branch="vault"] .cfg-preview {
+  border-color: var(--b-line);
+  background-color: #0e1013;
+  background-image:
+    repeating-linear-gradient(to right, var(--b-muted) 0 1px, transparent 1px 40px),
+    repeating-linear-gradient(to bottom, var(--b-muted) 0 1px, transparent 1px 40px),
+    linear-gradient(to right, var(--b-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--b-grid) 1px, transparent 1px);
+  background-size:
+    100% 10px,
+    10px 100%,
+    2rem 2rem,
+    2rem 2rem;
+  background-position:
+    0 0,
+    0 0,
+    0 0,
+    0 0;
+  background-repeat: no-repeat, no-repeat, repeat, repeat;
+}
+[data-branch="vault"] .cfg-preview::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(var(--b-accent), var(--b-accent)), linear-gradient(var(--b-accent), var(--b-accent)),
+    linear-gradient(var(--b-accent), var(--b-accent)), linear-gradient(var(--b-accent), var(--b-accent));
+  background-size:
+    18px 1px,
+    1px 18px,
+    18px 1px,
+    1px 18px;
+  background-position:
+    100% 0,
+    100% 0,
+    0 100%,
+    0 100%;
+  background-repeat: no-repeat;
+}
+[data-branch="vault"] .cfg-preview-toggle {
+  left: 1.25rem;
+  top: 1.25rem;
+  font-family: var(--b-font-mono);
+  text-transform: uppercase;
+  background-color: rgb(11 12 14 / 0.9);
+  box-shadow: inset 0 0 0 1px var(--b-line);
+}
+[data-branch="vault"] .cfg-mobilebar {
+  border-top-color: var(--b-accent);
+}
+
+/* ── Configurator: Maison Bespoke ───────────────────────────────────────────────────────────── */
+
+[data-branch="corporate"] .cfg-steps {
+  gap: 0;
+}
+[data-branch="corporate"] .cfg-step {
+  border: 1px solid var(--b-grid);
+  margin-top: -1px;
+  padding: 0 1.25rem 1.5rem;
+  gap: 1.25rem;
+  background-color: var(--b-panel);
+}
+/* The header row runs edge to edge: it cancels the step's side padding. */
+[data-branch="corporate"] .cfg-step-head {
+  margin-inline: -1.25rem;
+  align-items: stretch;
+  min-height: 3.25rem;
+  padding-right: 1.25rem;
+  border-bottom: 1px solid var(--b-grid);
+  background-color: var(--b-bg);
+}
+[data-branch="corporate"] .cfg-step-label {
+  align-items: center;
+  gap: 1rem;
+}
+[data-branch="corporate"] .cfg-step-index {
+  display: flex;
+  align-self: stretch;
+  align-items: center;
+  justify-content: center;
+  width: 3.5rem;
+  border-right: 1px solid var(--b-grid);
+  color: var(--b-ink);
+}
+[data-branch="corporate"] .cfg-step-title {
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+}
+[data-branch="corporate"] .cfg-step-aside {
+  align-self: center;
+  font-family: var(--b-font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+[data-branch="corporate"] .cfg-option,
+[data-branch="corporate"] .cfg-toggle,
+[data-branch="corporate"] .cfg-input,
+[data-branch="corporate"] .cfg-qty,
+[data-branch="corporate"] .cfg-font,
+[data-branch="corporate"] .cfg-tab {
+  border-color: var(--b-grid);
+  border-radius: 0;
+}
+[data-branch="corporate"] .cfg-switch,
+[data-branch="corporate"] .cfg-switch > span,
+[data-branch="corporate"] .cfg-preview-toggle,
+[data-branch="corporate"] .cfg-preview-toggle button {
+  border-radius: 0;
+}
+[data-branch="corporate"] .cfg-option:has(:checked),
+[data-branch="corporate"] .cfg-toggle[aria-checked="true"] {
+  background-color: var(--b-panel);
+  box-shadow: inset 0 0 0 2px var(--b-ink);
+}
+[data-branch="corporate"] .cfg-font:has(:checked),
+[data-branch="corporate"] .cfg-tab[aria-pressed="true"] {
+  background-color: var(--b-ink);
+  color: var(--b-panel);
+}
+[data-branch="corporate"] .cfg-tab {
+  font-family: var(--b-font-mono);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+}
+[data-branch="corporate"] .cfg-summary,
+[data-branch="corporate"] .cfg-total {
+  border: 1px solid var(--b-grid);
+  background-color: var(--b-panel);
+}
+[data-branch="corporate"] .cfg-summary {
+  margin-top: 2rem;
+}
+[data-branch="corporate"] .cfg-summary dl,
+[data-branch="corporate"] .cfg-summary dl > div {
+  border-color: var(--b-grid);
+}
+[data-branch="corporate"] .cfg-preview {
+  border-color: var(--b-grid);
+  background-color: var(--b-panel);
+}
+[data-branch="corporate"] .cfg-mobilebar {
+  border-top-color: var(--b-grid);
+}
+
+/* Volume calculator on the Bespoke grid: its 1px gaps become the architectural rules. */
+[data-branch="corporate"] .vol-calc {
+  border-color: var(--b-grid);
+  background-color: var(--b-grid);
+}
+
+/* ── Atelier Switcher ───────────────────────────────────────────────────────────────────────── */
+
+/* Pedigree's bar is the atelier inverted: forest-green ground, cream type, pills and cart badge.
+   Setting the base tokens on a [data-branch] element makes every derived token (muted, lines) follow. */
+.switcher-inverted[data-branch="pet"] {
+  --b-bg: #1b3b2b;
+  --b-ink: #faf6f0;
+  --b-accent: #faf6f0;
+  --b-accent-ink: #1b3b2b;
+}

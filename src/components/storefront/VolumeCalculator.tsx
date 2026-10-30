@@ -32,7 +32,7 @@ export function VolumeCalculator({ products }: { products: VolumeProduct[] }) {
   const setClamped = (value: number) => setQuantity(Math.min(MAX_QUANTITY, Math.max(1, Math.round(value) || 1)));
 
   return (
-    <div className="grid grid-cols-1 gap-px border border-line bg-line lg:grid-cols-12">
+    <div className="vol-calc grid grid-cols-1 gap-px border border-line bg-line lg:grid-cols-12">
       <div className="grid content-start gap-8 bg-bg p-6 sm:p-9 lg:col-span-7">
         <div className="grid gap-2">
           <label htmlFor={`${ids}-product`} className="eyebrow text-muted">

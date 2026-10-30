@@ -67,7 +67,7 @@ export function SymbolPicker({
             aria-pressed={category === option.key}
             onClick={() => setCategory(option.key)}
             className={cn(
-              "rounded-full border px-4 py-2 text-sm transition-colors",
+              "cfg-tab rounded-full border px-4 py-2 text-sm transition-colors",
               category === option.key
                 ? "border-ink bg-ink text-bg"
                 : "border-line text-muted hover:border-line-strong hover:text-ink",

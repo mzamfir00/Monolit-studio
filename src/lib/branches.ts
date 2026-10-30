@@ -29,6 +29,8 @@ export interface AtelierConfig {
   tagline: string;
   eyebrow: string;
   heroTitle: string;
+  /** Words of heroTitle set in the atelier's accent style (italic, molten copper…). */
+  heroAccent?: string;
   heroLead: string;
   /** Font pairing as named in CLAUDE.md; shown on the umbrella atelier selector. */
   typePairing: string;
@@ -65,6 +67,7 @@ export const ATELIERS: Record<Atelier, AtelierConfig> = {
     tagline: "Identitate în alamă masivă pentru cei care nu pot spune cine sunt.",
     eyebrow: "Atelier pentru animale de companie",
     heroTitle: "Numele lor, gravat în alamă masivă.",
+    heroAccent: "alamă masivă",
     heroLead:
       "Medalioane grele, zgărzi din piele vegetală și boluri din stejar — fiecare gravat mecanic, în adâncime, ca să reziste unei vieți întregi de alergat prin iarbă.",
     typePairing: "Fraunces · Plus Jakarta Sans",
@@ -99,6 +102,7 @@ export const ATELIERS: Record<Atelier, AtelierConfig> = {
     tagline: "Argint 925 și lumina unei linii trase cu diamantul.",
     eyebrow: "Bijuterii fine & obiecte de ceremonie",
     heroTitle: "Lumina unei linii trase cu diamantul.",
+    heroAccent: "cu diamantul",
     heroLead:
       "Pandantive, butoni și lingurițe de botez din argint 925, gravate pe cea mai nouă mașină M20 din atelier — cu vârf de diamant, pentru o linie strălucitoare pe care laserul nu o poate imita.",
     typePairing: "Bodoni Moda · Inter",
@@ -133,6 +137,7 @@ export const ATELIERS: Record<Atelier, AtelierConfig> = {
     tagline: "Obiecte grele de purtat zilnic. Gravuri care se simt.",
     eyebrow: "EDC · Barware · Executive",
     heroTitle: "Obiecte grele. Gravuri care se simt.",
+    heroAccent: "Gravuri care se simt.",
     heroLead:
       "Brichete din alamă masivă, port-carduri din titan și ploști din inox 316L — obiecte de purtat zilnic, gravate să îmbătrânească odată cu tine.",
     typePairing: "Space Grotesk · JetBrains Mono",
@@ -167,6 +172,7 @@ export const ATELIERS: Record<Atelier, AtelierConfig> = {
     tagline: "Identitate gravată, la scară, pentru hoteluri, cabane și companii.",
     eyebrow: "B2B · HoReCa · Cabane montane",
     heroTitle: "Identitate gravată, la scară.",
+    heroAccent: "la scară.",
     heroLead:
       "Brelocuri grele pentru cabane și hoteluri, plachete de onoare și plăcuțe nominale — produse în serie pe un M20 dedicat, cu aceeași precizie de la prima la a suta piesă.",
     typePairing: "Archivo Expanded · IBM Plex Mono",

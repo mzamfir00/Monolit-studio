@@ -95,7 +95,7 @@ function LineInputs({
               onFocus={onFocus}
               onChange={(event) => onChange(index, sanitizeLine(event.target.value, maxChars))}
               style={{ fontFamily, textTransform: uppercase ? "uppercase" : undefined }}
-              className="h-12 w-full rounded-branch border border-line-strong bg-bg px-4 text-lg text-ink placeholder:font-sans placeholder:text-sm placeholder:normal-case placeholder:text-muted"
+              className="cfg-input h-12 w-full rounded-branch border border-line-strong bg-bg px-4 text-lg text-ink placeholder:font-sans placeholder:text-sm placeholder:normal-case placeholder:text-muted"
             />
             <span aria-hidden="true" className="h-0.5 overflow-hidden rounded-full bg-line">
               <span
@@ -260,11 +260,11 @@ export function EngravingConfigurator({ product, header }: { product: CatalogPro
       <div className="mx-auto grid max-w-7xl gap-10 px-4 py-8 sm:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] lg:gap-14 lg:py-12">
         {/* Live preview */}
         <div className="grid content-start gap-4 lg:sticky lg:top-16 lg:self-start">
-          <div className="texture relative overflow-hidden rounded-branch-lg border border-line bg-surface">
+          <div className="cfg-preview texture relative overflow-hidden rounded-branch-lg border border-line bg-surface">
             <div
               role="group"
               aria-label="Previzualizare"
-              className="absolute left-4 top-4 z-10 flex gap-1 rounded-full bg-bg/85 p-1"
+              className="cfg-preview-toggle absolute left-4 top-4 z-10 flex gap-1 rounded-full bg-bg/85 p-1"
             >
               {(["front", "back"] as const).map((side) => (
                 <button
@@ -295,7 +295,7 @@ export function EngravingConfigurator({ product, header }: { product: CatalogPro
             Previzualizare orientativă, la scară. Zona punctată este suprafața gravabilă; compoziția finală o verificăm manual
             înainte de gravare.
           </p>
-          <div className="hidden items-center justify-between gap-6 rounded-branch-lg border border-line bg-bg p-5 lg:flex">
+          <div className="cfg-total hidden items-center justify-between gap-6 rounded-branch-lg border border-line bg-bg p-5 lg:flex">
             <div>
               <p className="eyebrow text-muted">Total · {quantity} buc.</p>
               <p className="display text-3xl tabular-nums">{formatRon(quote.totalBani)}</p>
@@ -311,7 +311,7 @@ export function EngravingConfigurator({ product, header }: { product: CatalogPro
         <div className="grid content-start gap-10">
           {header}
 
-          <form id={FORM_ID} noValidate onSubmit={submit} className="grid gap-10">
+          <form id={FORM_ID} noValidate onSubmit={submit} className="cfg-steps grid gap-10">
             <Step id="pas-material" index={1} title="Material și finisaj" error={shown("variant")}>
               <div className="grid gap-2 sm:grid-cols-2">
                 {product.variants.map((option) => (
@@ -374,7 +374,7 @@ export function EngravingConfigurator({ product, header }: { product: CatalogPro
                 {ENGRAVING_FONTS.map((option) => (
                   <label
                     key={option.key}
-                    className="cursor-pointer rounded-full border border-line bg-bg px-5 py-2.5 transition-colors hover:border-line-strong has-checked:border-ink has-checked:bg-ink has-checked:text-bg has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent"
+                    className="cfg-font cursor-pointer rounded-full border border-line bg-bg px-5 py-2.5 transition-colors hover:border-line-strong has-checked:border-ink has-checked:bg-ink has-checked:text-bg has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-accent"
                   >
                     <input
                       type="radio"
@@ -483,7 +483,7 @@ export function EngravingConfigurator({ product, header }: { product: CatalogPro
             <section
               id="sumar"
               aria-labelledby="sumar-title"
-              className="grid scroll-mt-24 gap-5 rounded-branch-lg border border-line bg-surface p-6 sm:p-8"
+              className="cfg-summary grid scroll-mt-24 gap-5 rounded-branch-lg border border-line bg-surface p-6 sm:p-8"
             >
               <h2 id="sumar-title" className="display text-2xl">
                 Sumar
@@ -494,7 +494,7 @@ export function EngravingConfigurator({ product, header }: { product: CatalogPro
                   Cantitate
                   <span className="block text-xs text-muted">{maxQuantity} semifabricate în stoc</span>
                 </label>
-                <div className="flex items-center rounded-branch border border-line-strong bg-bg">
+                <div className="cfg-qty flex items-center rounded-branch border border-line-strong bg-bg">
                   <button
                     type="button"
                     onClick={() => setClampedQuantity(quantity - 1)}
@@ -586,7 +586,7 @@ export function EngravingConfigurator({ product, header }: { product: CatalogPro
       </div>
 
       {/* Mobile price bar */}
-      <div className="fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg/95 px-4 py-3 backdrop-blur lg:hidden">
+      <div className="cfg-mobilebar fixed inset-x-0 bottom-0 z-30 border-t border-line bg-bg/95 px-4 py-3 backdrop-blur lg:hidden">
         <div className="mx-auto flex max-w-xl items-center justify-between gap-4">
           <div>
             <p className="eyebrow text-[10px] text-muted">Total · {quantity} buc.</p>

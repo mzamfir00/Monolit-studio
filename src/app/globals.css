@@ -1,4 +1,5 @@
 @import "tailwindcss";
+@import "./branch-systems.css";
 
 /*
  * Multi-Branch Dynamic Theme System
@@ -21,6 +22,8 @@
   --color-accent-ink: var(--b-accent-ink);
   --color-metal: var(--b-metal);
   --color-metal-text: var(--b-metal-text);
+  --color-panel: var(--b-panel);
+  --color-grid: var(--b-grid);
 
   --font-display: var(--b-font-display);
   --font-sans: var(--b-font-sans);
@@ -38,6 +41,8 @@
 
   --animate-rise: rise 0.9s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   --animate-spin-slow: turn 240s linear infinite;
+  --animate-spin-stamp: turn 36s linear infinite;
+  --animate-blink: blink 1.6s steps(2, start) infinite;
   --animate-drawer-in: drawer-in 0.35s cubic-bezier(0.2, 0.7, 0.2, 1) both;
   --animate-fade-in: fade-in 0.3s ease-out both;
 
@@ -64,6 +69,11 @@
       transform: none;
     }
   }
+  @keyframes blink {
+    to {
+      visibility: hidden;
+    }
+  }
   @keyframes fade-in {
     from {
       opacity: 0;
@@ -80,6 +90,10 @@
   --b-line: color-mix(in srgb, var(--b-ink) 13%, transparent);
   --b-line-strong: color-mix(in srgb, var(--b-ink) 28%, transparent);
   --b-raised: color-mix(in srgb, var(--b-surface) 50%, var(--b-bg));
+  --b-panel: var(--b-raised);
+  --b-grid: var(--b-line-strong);
+  --b-shell-texture: none;
+  --b-shell-texture-size: auto;
   --b-btn-bg: var(--b-accent);
   --b-btn-ink: var(--b-accent-ink);
   --b-texture: none;
@@ -126,7 +140,7 @@
   --b-texture: var(--grain);
 }
 
-/* 2 · MAISON PEDIGREE — warm heritage, organic luxury */
+/* 2 · MAISON PEDIGREE — warm heritage, tactile country-club nostalgia */
 [data-branch="pet"] {
   --b-wordmark-case: none;
   --b-wordmark-tracking: -0.01em;
@@ -135,18 +149,19 @@
   --b-hero-size: clamp(2.75rem, 6vw, 5.5rem);
   --b-h2-size: clamp(2.1rem, 4vw, 3.4rem);
   --b-card-title: 1.55rem;
-  --b-bg: #f4efe6; /* Warm Sand */
-  --b-surface: #eae2d3;
-  --b-ink: #23201c;
-  --b-accent: #2a4034; /* Forest Green */
-  --b-accent-ink: #f4efe6;
-  --b-metal: #c87d55; /* Terracotta / Brass */
-  --b-metal-text: #97532f;
+  --b-bg: #f3ede2; /* Oatmeal paper */
+  --b-surface: #ebe3d5;
+  --b-panel: #faf6f0; /* Soft cream */
+  --b-ink: #22201c;
+  --b-accent: #1b3b2b; /* British racing / forest green */
+  --b-accent-ink: #faf6f0;
+  --b-metal: #c86d51; /* Cognac leather / terracotta */
+  --b-metal-text: #9e4b31;
   --b-font-display: var(--font-fraunces), "Fraunces", Georgia, serif;
   --b-font-sans: var(--font-jakarta), system-ui, sans-serif;
   --b-font-mono: var(--font-jakarta), system-ui, sans-serif;
-  --b-radius: 18px;
-  --b-radius-lg: 32px;
+  --b-radius: 16px;
+  --b-radius-lg: 24px;
   --b-display-weight: 400;
   --b-display-tracking: -0.025em;
   --b-display-case: none;
@@ -161,9 +176,13 @@
   --b-btn-case: none;
   --b-btn-tracking: 0;
   --b-texture: var(--grain);
+  --b-shell-texture:
+    radial-gradient(60rem 40rem at 85% -10%, rgb(200 109 81 / 0.12), transparent 70%),
+    radial-gradient(50rem 36rem at -10% 30%, rgb(27 59 43 / 0.06), transparent 70%), var(--grain);
+  --b-shell-texture-size: auto, auto, 180px 180px;
 }
 
-/* 3 · MAISON AURUM — high-fashion editorial, pure ivory */
+/* 3 · MAISON AURUM — haute joaillerie editorial: alabaster, hairlines, zero radius */
 [data-branch="jewelry"] {
   --b-wordmark-case: uppercase;
   --b-wordmark-tracking: 0.34em;
@@ -172,13 +191,18 @@
   --b-hero-size: clamp(3rem, 7.5vw, 7rem);
   --b-h2-size: clamp(2.4rem, 5vw, 4.25rem);
   --b-card-title: 1.65rem;
-  --b-bg: #fcfcfa; /* Pure Ivory */
-  --b-surface: #f5f4f0;
-  --b-ink: #0f0f0f;
-  --b-accent: #c5a059; /* Champagne Gold */
-  --b-accent-ink: #0f0f0f;
+  --b-bg: #faf9f6; /* Gallery alabaster */
+  --b-surface: #f4f2ee;
+  --b-panel: #ffffff;
+  --b-ink: #0a0a0a; /* Obsidian */
+  --b-muted: #78716a;
+  --b-line: #e6e2dd; /* Warm stone hairline */
+  --b-line-strong: #cfc8bf;
+  --b-grid: #e6e2dd;
+  --b-accent: #c5a059; /* Champagne gold */
+  --b-accent-ink: #0a0a0a;
   --b-metal: #c5a059;
-  --b-metal-text: #856526;
+  --b-metal-text: #8a6a2e;
   --b-font-display: var(--font-bodoni), "Bodoni Moda", "Playfair Display", Didot, serif;
   --b-font-sans: var(--font-inter), system-ui, sans-serif;
   --b-font-mono: var(--font-inter), system-ui, sans-serif;
@@ -201,7 +225,7 @@
   --b-btn-tracking: 0.3em;
 }
 
-/* 4 · THE BRASS VAULT — dark, masculine, industrial bespoke */
+/* 4 · THE BRASS VAULT — dark tactical industrial, CNC spec sheet */
 [data-branch="vault"] {
   --b-wordmark-case: uppercase;
   --b-wordmark-tracking: -0.02em;
@@ -211,37 +235,47 @@
   --b-h2-size: clamp(2rem, 4vw, 3.4rem);
   --b-card-title: 1.3rem;
   color-scheme: dark;
-  --b-bg: #121316; /* Charcoal Obsidian */
-  --b-surface: #1c1e24;
-  --b-ink: #f3f4f6;
-  --b-accent: #b87333; /* Aged Copper / Cognac Leather */
-  --b-accent-ink: #121316;
-  --b-metal: #b87333;
-  --b-metal-text: #d99a5e;
+  --b-bg: #0b0c0e; /* Carbon gunmetal */
+  --b-surface: #131519; /* Machined slate */
+  --b-panel: #131519;
+  --b-raised: #181b20;
+  --b-ink: #f3f4f6; /* Platinum */
+  --b-muted: #8b8b94;
+  --b-line: #262930; /* Brushed steel */
+  --b-line-strong: #3a3e47;
+  --b-grid: #1f2229;
+  --b-accent: #d97736; /* Molten copper */
+  --b-accent-ink: #0b0c0e;
+  --b-metal: #d97736;
+  --b-metal-text: #e8925a;
   --b-font-display: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
   --b-font-sans: var(--font-space-grotesk), "Space Grotesk", system-ui, sans-serif;
   --b-font-mono: var(--font-jetbrains), "JetBrains Mono", ui-monospace, monospace;
-  --b-radius: 3px;
-  --b-radius-lg: 6px;
+  --b-radius: 2px;
+  --b-radius-lg: 2px;
   --b-display-weight: 600;
   --b-display-tracking: -0.035em;
   --b-display-case: uppercase;
   --b-display-leading: 1;
   --b-card-leading: 1.1;
   --b-label-tracking: 0.14em;
-  --b-btn-radius: 3px;
+  --b-btn-radius: 2px;
   --b-btn-font: var(--b-font-mono);
   --b-btn-weight: 500;
   --b-btn-size: 0.75rem;
   --b-btn-case: uppercase;
   --b-btn-tracking: 0.1em;
   --b-texture:
-    linear-gradient(to right, rgb(255 255 255 / 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(255 255 255 / 0.035) 1px, transparent 1px);
-  --b-texture-size: 48px 48px;
+    linear-gradient(to right, var(--b-grid) 1px, transparent 1px), linear-gradient(to bottom, var(--b-grid) 1px, transparent 1px);
+  --b-texture-size: 4rem 4rem;
+  /* Exposed CAD blueprint grid behind the whole atelier. */
+  --b-shell-texture:
+    linear-gradient(to right, rgb(31 34 41 / 0.7) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(31 34 41 / 0.7) 1px, transparent 1px);
+  --b-shell-texture-size: 4rem 4rem;
 }
 
-/* 5 · MAISON BESPOKE — architectural, structured, B2B */
+/* 5 · MAISON BESPOKE — Swiss architectural grid, monolithic brutalism */
 [data-branch="corporate"] {
   --b-wordmark-case: uppercase;
   --b-wordmark-tracking: 0.06em;
@@ -250,13 +284,15 @@
   --b-hero-size: clamp(2rem, 4.8vw, 4.4rem);
   --b-h2-size: clamp(1.6rem, 3vw, 2.6rem);
   --b-card-title: 1.05rem;
-  --b-bg: #edeeeb; /* Travertine */
-  --b-surface: #e2e4e0;
-  --b-ink: #14181f; /* Graphite */
-  --b-accent: #1b2a3a; /* Architectural Navy */
-  --b-accent-ink: #edeeeb;
-  --b-metal: #a88b5a; /* Satin Brass */
-  --b-metal-text: #735c30;
+  --b-bg: #e8e6e1; /* Raw limestone */
+  --b-surface: #dfdcd5;
+  --b-panel: #f7f6f2; /* Specification white */
+  --b-ink: #121212; /* Architectural black */
+  --b-grid: #121212;
+  --b-accent: #8c5a32; /* International bronze */
+  --b-accent-ink: #f7f6f2;
+  --b-metal: #8c5a32;
+  --b-metal-text: #7a4c28;
   --b-font-display: var(--font-archivo), "Archivo", system-ui, sans-serif;
   --b-font-sans: var(--font-archivo), "Archivo", system-ui, sans-serif;
   --b-font-mono: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
@@ -269,6 +305,8 @@
   --b-card-leading: 1.2;
   --b-display-stretch: 125%;
   --b-label-tracking: 0.18em;
+  --b-btn-bg: var(--b-ink);
+  --b-btn-ink: var(--b-panel);
   --b-btn-radius: 0;
   --b-btn-font: var(--b-font-sans);
   --b-btn-weight: 600;
@@ -276,11 +314,11 @@
   --b-btn-case: uppercase;
   --b-btn-tracking: 0.12em;
   --b-texture:
-    linear-gradient(to right, rgb(27 42 58 / 0.07) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(27 42 58 / 0.07) 1px, transparent 1px),
-    linear-gradient(to right, rgb(27 42 58 / 0.035) 1px, transparent 1px),
-    linear-gradient(to bottom, rgb(27 42 58 / 0.035) 1px, transparent 1px);
-  --b-texture-size: 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+    linear-gradient(to right, rgb(18 18 18 / 0.06) 1px, transparent 1px),
+    linear-gradient(to bottom, rgb(18 18 18 / 0.06) 1px, transparent 1px);
+  --b-texture-size: 24px 24px;
+  --b-shell-texture: var(--grain);
+  --b-shell-texture-size: 180px 180px;
 }
 
 /* The browser canvas follows whichever atelier is the page shell (overscroll, scrollbars). */
@@ -288,17 +326,17 @@ html:has(.branch-shell[data-branch="umbrella"]) {
   background-color: #f7f5f0;
 }
 html:has(.branch-shell[data-branch="pet"]) {
-  background-color: #f4efe6;
+  background-color: #f3ede2;
 }
 html:has(.branch-shell[data-branch="jewelry"]) {
-  background-color: #fcfcfa;
+  background-color: #faf9f6;
 }
 html:has(.branch-shell[data-branch="vault"]) {
-  background-color: #121316;
+  background-color: #0b0c0e;
   color-scheme: dark;
 }
 html:has(.branch-shell[data-branch="corporate"]) {
-  background-color: #edeeeb;
+  background-color: #e8e6e1;
 }
 
 @layer base {
@@ -310,6 +348,8 @@ html:has(.branch-shell[data-branch="corporate"]) {
 
   .branch-shell {
     background-color: var(--b-bg);
+    background-image: var(--b-shell-texture);
+    background-size: var(--b-shell-texture-size);
     color: var(--b-ink);
     font-family: var(--b-font-sans);
   }

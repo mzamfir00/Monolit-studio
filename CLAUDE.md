@@ -27,23 +27,27 @@ The platform consists of 1 Umbrella Hub and 4 specialized Verticals (Branches). 
 
 2. **`pet` (`/pet`) - "Maison Pedigree" (Pet Luxury & Identification)**
    - **Vibe:** Warm Heritage, organic luxury, heavy solid brass & surgical steel tags, riveted leather collars, ceramic/wood bowls, memorial urns.
-   - **Palette:** Background `#F4EFE6` (Warm Sand), Surface `#EAE2D3`, Text `#23201C`, Accent `#2A4034` (Forest Green) & `#C87D55` (Terracotta/Brass).
+   - **Palette:** Background `#F3EDE2` (Oatmeal paper), Cards `#FAF6F0` (Soft cream), Text `#22201C`, Accent `#1B3B2B` (British racing / forest green) & `#C86D51` (Cognac leather / terracotta).
    - **Fonts:** Serif (`Fraunces`) + Sans (`Plus Jakarta Sans`).
+   - **Geometry:** organic curves (`rounded-3xl`, pill buttons), stitched dashed inner seams (`.stitch`), arch frames, warm paper grain with a soft radial glow, rotating lifetime-guarantee seal.
 
 3. **`jewelry` (`/jewelry`) - "Maison Aurum" (Fine Jewelry & Ceremonial Keepsakes)**
    - **Vibe:** High-fashion editorial, ultra-clean white/ivory space, macro diamond-cut textures, 925 silver pendants, cufflinks, baptism silver coins/spoons, heavy brass love locks.
-   - **Palette:** Background `#FCFCFA` (Pure Ivory), Surface `#F5F4F0`, Text `#0F0F0F`, Accent `#C5A059` (Champagne Gold).
+   - **Palette:** Background `#FAF9F6` (Gallery alabaster), Cards `#FFFFFF`, Text `#0A0A0A` (Obsidian), Accent `#C5A059` (Champagne Gold), hairlines `#E6E2DD`.
    - **Fonts:** Editorial Serif (`Bodoni Moda` / `Playfair Display`) + Sans (`Inter`).
+   - **Geometry:** zero border radius everywhere, 0.5px hairlines, centred museum layouts, asymmetric diptychs, roman numerals, lookbook cards without boxes.
 
 4. **`vault` (`/vault`) - "The Brass Vault" (Gentlemen's EDC, Barware & Executive)**
    - **Vibe:** Dark Mode, masculine, industrial bespoke, solid brass lighters, titanium cardholders, knives, luxury pens, hip flasks.
-   - **Palette:** Background `#121316` (Charcoal Obsidian), Surface `#1C1E24`, Text `#F3F4F6`, Accent `#B87333` (Aged Copper / Cognac Leather).
+   - **Palette:** Background `#0B0C0E` (Carbon gunmetal), Surface `#131519` (Machined slate), borders `#262930` (Brushed steel), Text `#F3F4F6`, Accent `#D97736` (Molten copper).
    - **Fonts:** Technical Sans (`Space Grotesk`) + Mono (`JetBrains Mono`).
+   - **Geometry:** 2px industrial corners, exposed 4rem CAD blueprint grid, `+` crosshairs and copper corner brackets, millimetre rulers, telemetry strip, monospace SKUs and machine codes.
 
 5. **`corporate` (`/corporate`) - "Maison Bespoke" (B2B, HoReCa & Mountain Cabins)**
    - **Vibe:** Architectural, structured, heavy brass hotel/cabin key fobs, trophy plaques, executive gifts, volume calculation tiers.
-   - **Palette:** Background `#EDEEEB` (Travertine), Surface `#E2E4E0`, Text `#14181F` (Graphite), Accent `#1B2A3A` (Architectural Navy) & `#A88B5A` (Satin Brass).
+   - **Palette:** Background `#E8E6E1` (Raw limestone), Cells `#F7F6F2`, Text & grid `#121212` (Architectural black), Accent `#8C5A32` (International bronze).
    - **Fonts:** Expanded Sans (`Archivo`, width 125%) + Mono (`IBM Plex Mono`).
+   - **Geometry:** exposed Swiss grid of continuous 1px black rules shared between cells, numbered index markers (`01 / 04`, `N° 01`), specification-sheet tables, volume tier bars on every product.
 
 **Universal Navigation & Cart Rule:**
 - A sleek top bar ("Atelier Switcher") allows switching between branches at any time.
@@ -109,7 +113,8 @@ Specifically engineered for the owner's 3 Gravograph M20 machines:
 
 ## 6. Implementation Conventions (codebase map)
 - **Commands:** `npm run dev` · `npm run build` · `npm run lint` · `npm run typecheck` · `npm run db:migrate` · `npm run db:seed` (Prisma 7 + `@prisma/adapter-pg`; config in `prisma.config.ts`, client generated to `src/generated/prisma`, git-ignored, regenerated on `postinstall`). Migrations and the seed prefer `DATABASE_URL_UNPOOLED` when it is set (direct connection behind a pooler). Access the database only through `db()` from `src/lib/prisma.ts` (created lazily, so `next build` runs without `DATABASE_URL`; every page that shows products needs it at runtime).
-- **Theme tokens:** `src/app/globals.css` defines every atelier as `--b-*` variables under `[data-branch="…"]`. Use the semantic Tailwind utilities (`bg-bg`, `bg-surface`, `text-ink`, `text-muted`, `border-line`, `bg-accent`, `text-accent-ink`, `text-metal`, `text-metal-text`, `font-display`, `font-mono`, `rounded-branch`, `rounded-branch-lg`, `text-hero`, `text-h2`, `text-card`) and the component utilities (`display`, `wordmark`, `eyebrow`, `btn btn-primary`, `btn btn-ghost`, `texture`). Never hard-code a branch colour in a component — set `data-branch` on a subtree instead (cards, badges and previews re-theme themselves this way).
+- **Theme tokens:** `src/app/globals.css` defines every atelier as `--b-*` variables under `[data-branch="…"]`. Use the semantic Tailwind utilities (`bg-bg`, `bg-surface`, `bg-panel` (card fill), `text-ink`, `text-muted`, `border-line`, `border-grid` (structural rules), `bg-accent`, `text-accent-ink`, `text-metal`, `text-metal-text`, `font-display`, `font-mono`, `rounded-branch`, `rounded-branch-lg`, `text-hero`, `text-h2`, `text-card`) and the component utilities (`display`, `wordmark`, `eyebrow`, `btn btn-primary`, `btn btn-ghost`, `texture`). Never hard-code a branch colour in a component — set `data-branch` on a subtree instead (cards, badges and previews re-theme themselves this way).
+- **Branch design systems:** the four storefronts differ in structure, not only colour. `src/components/branch/` holds one variant per atelier of the hero (`BranchHero`), product card and grid (`BranchProductCard`, `BranchProductGrid`), section header, pillars, craft and cross-links (`BranchSections`) and the product page wrappers (`ProductPage`). `src/app/branch-systems.css` holds the geometry layer: decorative primitives (`.stitch`, `.corner-brackets`, `.ruler-x/y`, `.molten`), per-atelier button shapes, and the configurator re-cut through its `cfg-*` class hooks (`cfg-step`, `cfg-step-index`, `cfg-option`, `cfg-font`, `cfg-input`, `cfg-toggle`, `cfg-summary`, `cfg-preview`…), so the configurator's logic stays shared. New storefront UI needs a variant for each atelier (or a `PANEL[branch]` frame). The umbrella hub keeps `src/components/product/ProductCard.tsx`.
 - **Fonts:** all families are loaded with `next/font/google` in `src/app/fonts.ts` (latin-ext for ă â î ș ț) and exposed as CSS variables on `<html>`.
 - **Routing:** `src/app/(umbrella)` = `/`; `src/app/[branch]` = the four storefronts (static params, unknown segments 404); product pages live at `/[branch]/produs/[slug]`. `BranchShell` wraps every page with the Atelier Switcher, masthead, footer and the Universal Cart drawer.
 - **Catalogue:** PostgreSQL is the source of truth, edited in `/admin/products` (dimensions in mm, prices in bani = RON × 100). `src/lib/seed-data.ts` only bootstraps it: `npm run db:seed` adds missing products and leaves existing ones alone (`-- --reset` rewrites them, `-- --if-empty` only seeds an empty catalogue). The storefront reads the active catalogue through `src/lib/server/catalog.ts` (`unstable_cache`, tag `catalog`); pages that show products are `force-dynamic`. Call `invalidateCatalog()` from a server action or route handler after any product or stock change — never during render.
