@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 import { ArrowRight, Ban, CreditCard, ShieldCheck } from "lucide-react";
 import { AtelierSelector, type AtelierEntry } from "@/components/home/AtelierSelector";
@@ -5,9 +6,12 @@ import { EngravingDiagram } from "@/components/home/EngravingDiagram";
 import { Guilloche } from "@/components/home/Guilloche";
 import { ProductCard } from "@/components/product/ProductCard";
 import { ProductVisual } from "@/components/product/ProductVisual";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { ATELIERS } from "@/lib/branches";
 import { getFeaturedProducts, getProduct, getProductsByBranch } from "@/lib/server/catalog";
 import { formatRon } from "@/lib/format";
+import { pageMetadata } from "@/lib/site";
+import { organizationLd, websiteLd } from "@/lib/structured-data";
 import { BRANCHES } from "@/lib/types";
 import { ENGRAVING_METHODS, MACHINES, MACHINE_ORDER, WORKFLOW_STEPS } from "@/lib/workshop";
 
@@ -274,9 +278,17 @@ function Payment() {
 // Rendered per request from the cached catalogue, so admin edits show without a rebuild.
 export const dynamic = "force-dynamic";
 
+export const metadata: Metadata = pageMetadata({
+  title: `${ATELIERS.umbrella.seoTitle} · Maison Gravure`,
+  absoluteTitle: true,
+  description: ATELIERS.umbrella.seoDescription,
+  path: "/",
+});
+
 export default function HomePage() {
   return (
     <>
+      <JsonLd data={[organizationLd(), websiteLd()]} />
       <Hero />
       <Ateliers />
       <Machines />

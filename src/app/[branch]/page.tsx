@@ -1,13 +1,29 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { BranchHero } from "@/components/branch/BranchHero";
 import { BranchProductGrid } from "@/components/branch/BranchProductCard";
 import { BranchHeading, BranchPillars, CraftSection, OtherAteliers } from "@/components/branch/BranchSections";
+import { JsonLd } from "@/components/seo/JsonLd";
 import { VolumeCalculator } from "@/components/storefront/VolumeCalculator";
 import { ATELIERS, isBranch } from "@/lib/branches";
 import { getProduct, getProductsByBranch } from "@/lib/server/catalog";
+import { pageMetadata } from "@/lib/site";
+import { breadcrumbLd, collectionLd } from "@/lib/structured-data";
 
 // Rendered per request from the cached catalogue, so admin edits show without a rebuild.
 export const dynamic = "force-dynamic";
+
+export async function generateMetadata({ params }: { params: Promise<{ branch: string }> }): Promise<Metadata> {
+  const { branch } = await params;
+  if (!isBranch(branch)) return {};
+  const atelier = ATELIERS[branch];
+  return pageMetadata({
+    title: `${atelier.seoTitle} · ${atelier.name}`,
+    absoluteTitle: true,
+    description: atelier.seoDescription,
+    path: atelier.href,
+  });
+}
 
 export default async function BranchStorefront({ params }: { params: Promise<{ branch: string }> }) {
   const { branch } = await params;
@@ -23,6 +39,15 @@ export default async function BranchStorefront({ params }: { params: Promise<{ b
 
   return (
     <>
+      <JsonLd
+        data={[
+          collectionLd(branch, products),
+          breadcrumbLd([
+            ["Maison Gravure", "/"],
+            [atelier.name, atelier.href],
+          ]),
+        ]}
+      />
       {hero ? (
         <BranchHero branch={branch} product={hero} products={products} />
       ) : (

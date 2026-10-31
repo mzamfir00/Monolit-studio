@@ -94,6 +94,8 @@ The repository deploys to [Vercel](https://vercel.com) with a [Neon](https://neo
 3. In **Settings → Environment Variables**, add `ADMIN_EMAIL`, `ADMIN_PASSWORD_HASH` and `AUTH_SECRET` (from `npm run admin:credentials`). Until Stripe is set up, also add `PAYMENT_SIMULATION` = `true` to test orders without real payments.
 4. **Deployments → ⋯ → Redeploy**. The site is then live at the project's `.vercel.app` address, and the workshop portal at `/admin`.
 
+Canonical URLs, the sitemap and share images use the Vercel production domain automatically. When you add your own domain, set `NEXT_PUBLIC_SITE_URL` (for example `https://maison-gravure.ro`) and redeploy, then submit `https://<domain>/sitemap.xml` in Google Search Console.
+
 Before taking real orders, remove `PAYMENT_SIMULATION` and add `STRIPE_SECRET_KEY` and `STRIPE_WEBHOOK_SECRET`, with a Stripe webhook pointing at `https://<domain>/api/stripe/webhook` (events `checkout.session.completed` and `checkout.session.expired`).
 
 ## How the theme system works

@@ -39,6 +39,9 @@ export interface AtelierConfig {
   pillars: Pillar[];
   collectionTitle: string;
   collectionLead: string;
+  /** Search result title (before the "· Atelier" suffix) and meta description, with the terms people search for. */
+  seoTitle: string;
+  seoDescription: string;
 }
 
 export const ATELIERS: Record<Atelier, AtelierConfig> = {
@@ -57,6 +60,9 @@ export const ATELIERS: Record<Atelier, AtelierConfig> = {
     pillars: [],
     collectionTitle: "Capodopere din toate atelierele",
     collectionLead: "Câte o piesă-reper din fiecare atelier, gravată pe mașina potrivită metalului.",
+    seoTitle: "Gravură mecanică personalizată",
+    seoDescription:
+      "Gravură mecanică personalizată pe Gravograph M20: medalioane pentru câini, bijuterii din argint 925, brichete și brelocuri de hotel, livrate în toată România.",
   },
   pet: {
     key: "pet",
@@ -92,6 +98,9 @@ export const ATELIERS: Record<Atelier, AtelierConfig> = {
     ],
     collectionTitle: "Colecția Pedigree",
     collectionLead: "Piese de identificare și de casă, gândite pentru câini care trăiesc afară, la apă și în noroi.",
+    seoTitle: "Medalioane gravate pentru câini",
+    seoDescription:
+      "Medalioane din alamă masivă de 3 mm, zgărzi din piele și boluri din stejar, gravate mecanic în adâncime cu numele animalului și telefonul tău.",
   },
   jewelry: {
     key: "jewelry",
@@ -127,6 +136,9 @@ export const ATELIERS: Record<Atelier, AtelierConfig> = {
     ],
     collectionTitle: "Colecția Aurum",
     collectionLead: "Bijuterii și obiecte de ceremonie, gravate cu diamantul pe suprafețe de câțiva milimetri.",
+    seoTitle: "Bijuterii gravate din argint 925",
+    seoDescription:
+      "Pandantive, butoni și lingurițe de botez din argint 925, gravate cu vârf de diamant: inițiale, date și monograme, gata de dăruit în cutie de catifea.",
   },
   vault: {
     key: "vault",
@@ -162,6 +174,9 @@ export const ATELIERS: Record<Atelier, AtelierConfig> = {
     ],
     collectionTitle: "Inventarul Vault",
     collectionLead: "Unelte de buzunar și de bar, cântărite în grame și gravate în sutimi de milimetru.",
+    seoTitle: "Brichete și cadouri gravate pentru bărbați",
+    seoDescription:
+      "Brichete din alamă masivă, port-carduri din titan și ploști din inox 316L, gravate mecanic cu monograma sau mesajul tău. Cadouri care durează o viață.",
   },
   corporate: {
     key: "corporate",
@@ -197,6 +212,9 @@ export const ATELIERS: Record<Atelier, AtelierConfig> = {
     ],
     collectionTitle: "Catalog Bespoke",
     collectionLead: "Piese pentru recepții, cabane și ceremonii de companie — cu tarife pe tranșe de volum.",
+    seoTitle: "Brelocuri de hotel și plachete gravate",
+    seoDescription:
+      "Brelocuri grele pentru hoteluri și cabane, plachete de onoare și plăcuțe nominale gravate în serie, cu reduceri de volum și factură pe firmă (CUI).",
   },
 };
 

@@ -24,9 +24,10 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
   const { branch } = await params;
   if (!isBranch(branch)) return {};
   const atelier = ATELIERS[branch];
+  // Page-level metadata (canonical, previews) lives in each page; the layout only sets the title suffix.
   return {
-    title: { default: `${atelier.name} — ${atelier.category}`, template: `%s · ${atelier.name}` },
-    description: atelier.tagline,
+    title: { default: `${atelier.seoTitle} · ${atelier.name}`, template: `%s · ${atelier.name}` },
+    description: atelier.seoDescription,
   };
 }
 
