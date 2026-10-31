@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useState, useTransition, type FormEvent, type InputHTMLAttributes, type ReactNode } from "react";
-import { Building2, CreditCard, FlaskConical, Loader2, Lock, ShoppingBag, User } from "lucide-react";
+import { Building2, CircleUserRound, CreditCard, FlaskConical, Loader2, Lock, ShoppingBag, User } from "lucide-react";
 import { EngravingDetails } from "@/components/engraving/EngravingDetails";
+import { PASSWORD_MIN } from "@/lib/account";
 import { ATELIERS } from "@/lib/branches";
 import { COUNTIES, type CheckoutErrors, type CheckoutField, type CustomerType } from "@/lib/checkout";
 import { cn, formatRon } from "@/lib/format";
@@ -50,7 +51,17 @@ function Field({
   );
 }
 
-function CountySelect({ name, error, autoComplete }: { name: CheckoutField; error?: string; autoComplete: string }) {
+function CountySelect({
+  name,
+  error,
+  autoComplete,
+  defaultValue = "",
+}: {
+  name: CheckoutField;
+  error?: string;
+  autoComplete: string;
+  defaultValue?: string;
+}) {
   return (
     <div className="grid content-start gap-1.5">
       <label htmlFor={name} className="text-sm">
@@ -60,7 +71,7 @@ function CountySelect({ name, error, autoComplete }: { name: CheckoutField; erro
         id={name}
         name={name}
         required
-        defaultValue=""
+        defaultValue={defaultValue}
         autoComplete={autoComplete}
         aria-invalid={error ? true : undefined}
         aria-describedby={error ? `${name}-error` : undefined}
@@ -106,11 +117,14 @@ function AddressFields({
   errors,
   nameLabel,
   addressLabel,
+  defaults,
 }: {
   prefix: "billing" | "shipping";
   errors: CheckoutErrors;
   nameLabel: string;
   addressLabel: string;
+  /** Prefill from the signed-in customer's saved details. */
+  defaults?: Partial<Record<"name" | "address" | "city" | "county" | "postalCode", string>>;
 }) {
   return (
     <div className="grid gap-4 sm:grid-cols-2">
@@ -119,6 +133,7 @@ function AddressFields({
         label={nameLabel}
         autoComplete={`${prefix} name`}
         required
+        defaultValue={defaults?.name}
         error={errors[`${prefix}Name`]}
         className="sm:col-span-2"
       />
@@ -128,6 +143,7 @@ function AddressFields({
         placeholder="Strada, numărul, bloc, scară, apartament"
         autoComplete={`${prefix} street-address`}
         required
+        defaultValue={defaults?.address}
         error={errors[`${prefix}Address`]}
         className="sm:col-span-2"
       />
@@ -136,9 +152,15 @@ function AddressFields({
         label="Localitate"
         autoComplete={`${prefix} address-level2`}
         required
+        defaultValue={defaults?.city}
         error={errors[`${prefix}City`]}
       />
-      <CountySelect name={`${prefix}County`} autoComplete={`${prefix} address-level1`} error={errors[`${prefix}County`]} />
+      <CountySelect
+        name={`${prefix}County`}
+        autoComplete={`${prefix} address-level1`}
+        defaultValue={defaults?.county}
+        error={errors[`${prefix}County`]}
+      />
       <Field
         name={`${prefix}PostalCode`}
         label="Cod poștal"
@@ -147,17 +169,31 @@ function AddressFields({
         maxLength={6}
         autoComplete={`${prefix} postal-code`}
         required
+        defaultValue={defaults?.postalCode}
         error={errors[`${prefix}PostalCode`]}
       />
     </div>
   );
 }
 
+/** Saved details of the signed-in customer, used to prefill the form. */
+export interface CheckoutAccount {
+  name: string;
+  email: string;
+  phone: string;
+  address: string;
+  city: string;
+  county: string;
+  postalCode: string;
+}
+
 export function CheckoutForm({
+  account,
   stripeEnabled,
   simulationEnabled,
   cancelledOrder,
 }: {
+  account: CheckoutAccount | null;
   stripeEnabled: boolean;
   simulationEnabled: boolean;
   cancelledOrder: string | null;
@@ -167,6 +203,7 @@ export function CheckoutForm({
   const openCart = useCartStore((state) => state.open);
   const [customerType, setCustomerType] = useState<CustomerType>("INDIVIDUAL");
   const [sameShipping, setSameShipping] = useState(true);
+  const [createAccount, setCreateAccount] = useState(false);
   const [state, setState] = useState<CheckoutState>({});
   const [pending, startTransition] = useTransition();
   const [intent, setIntent] = useState<"stripe" | "simulate" | null>(null);
@@ -249,6 +286,27 @@ export function CheckoutForm({
             <input type="hidden" name="expectedTotal" value={total} />
 
             <Section index={1} title="Date de contact">
+              {account ? (
+                <p className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-branch border border-line bg-surface px-4 py-3 text-sm">
+                  <CircleUserRound className="size-4 text-metal" aria-hidden="true" />
+                  <span>
+                    Comanzi din contul <span className="font-medium">{account.email}</span>: datele tale sunt completate, iar
+                    comanda va apărea în{" "}
+                    <Link href="/contul-meu/comenzi" className="underline underline-offset-4">
+                      Comenzile mele
+                    </Link>
+                    .
+                  </span>
+                </p>
+              ) : (
+                <p className="text-sm text-muted">
+                  Ai deja cont?{" "}
+                  <Link href="/autentificare?next=/checkout" className="font-medium text-ink underline underline-offset-4">
+                    Autentifică-te
+                  </Link>{" "}
+                  și completăm noi datele.
+                </p>
+              )}
               <div className="grid gap-4 sm:grid-cols-2">
                 <Field
                   name="email"
@@ -256,6 +314,7 @@ export function CheckoutForm({
                   type="email"
                   autoComplete="email"
                   required
+                  defaultValue={account?.email}
                   error={errors.email}
                   hint="Pentru confirmarea comenzii și AWB."
                 />
@@ -266,10 +325,42 @@ export function CheckoutForm({
                   autoComplete="tel"
                   placeholder="07xx xxx xxx"
                   required
+                  defaultValue={account?.phone}
                   error={errors.phone}
                   hint="Pentru curier."
                 />
               </div>
+              {!account && (
+                <div className="grid gap-4 rounded-branch border border-line bg-raised p-4 sm:p-5">
+                  <label className="flex cursor-pointer items-start gap-3 text-sm">
+                    <input
+                      type="checkbox"
+                      name="createAccount"
+                      checked={createAccount}
+                      onChange={(event) => setCreateAccount(event.target.checked)}
+                      className="mt-0.5 size-5 shrink-0 accent-[var(--b-accent)]"
+                    />
+                    <span className="grid gap-0.5">
+                      <span className="font-medium">Vreau să creez un cont pentru a urmări gravura și livrarea</span>
+                      <span className="text-muted">
+                        Comanda apare în contul tău, iar datele se completează singure data viitoare.
+                      </span>
+                    </span>
+                  </label>
+                  {createAccount && (
+                    <Field
+                      name="accountPassword"
+                      label="Alege o parolă"
+                      type="password"
+                      autoComplete="new-password"
+                      minLength={PASSWORD_MIN}
+                      required
+                      error={errors.accountPassword}
+                      hint={`Minimum ${PASSWORD_MIN} caractere. Contul se creează odată cu comanda.`}
+                    />
+                  )}
+                </div>
+              )}
             </Section>
 
             <Section index={2} title="Facturare">
@@ -335,6 +426,17 @@ export function CheckoutForm({
                 errors={errors}
                 nameLabel={company ? "Persoană de contact" : "Nume și prenume"}
                 addressLabel={company ? "Sediul social" : "Adresa de facturare"}
+                defaults={
+                  account
+                    ? {
+                        name: account.name,
+                        address: account.address,
+                        city: account.city,
+                        county: account.county,
+                        postalCode: account.postalCode,
+                      }
+                    : undefined
+                }
               />
             </Section>
 

@@ -8,8 +8,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      // Private or per-customer pages: the workshop portal, APIs, checkout and order tracking.
-      disallow: ["/admin", "/api/", "/checkout", "/comanda/"],
+      // Private or per-customer pages: the workshop portal, APIs, checkout, order tracking and customer accounts.
+      disallow: ["/admin", "/api/", "/checkout", "/comanda/", "/contul-meu", "/autentificare"],
     },
     sitemap: absoluteUrl("/sitemap.xml"),
   };

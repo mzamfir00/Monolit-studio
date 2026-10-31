@@ -91,6 +91,8 @@ export async function createPendingOrder(
   customer: CustomerDetails,
   lines: CheckoutLine[],
   expectedTotalBani: number,
+  /** Customer account placing the order; null for a guest checkout. */
+  userId: string | null = null,
 ): Promise<PendingOrder> {
   const priced = await priceLines(lines);
   const subtotalBani = priced.reduce((sum, line) => sum + line.quote.totalBani, 0);
@@ -110,6 +112,7 @@ export async function createPendingOrder(
         data: {
           number: orderNumber(),
           accessToken,
+          userId,
           customerType: customer.customerType,
           email: customer.email,
           phone: customer.phone,

@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CreditCard } from "lucide-react";
+import { CircleUserRound, CreditCard } from "lucide-react";
 import { ATELIERS, ATELIER_ORDER } from "@/lib/branches";
 import { cn } from "@/lib/format";
 import type { Atelier } from "@/lib/types";
@@ -121,6 +121,14 @@ export function AtelierSwitcher({ current }: { current: Atelier }) {
           <CreditCard className="size-3.5" strokeWidth={1.5} aria-hidden="true" />
           Plată exclusiv cu cardul
         </p>
+        <Link
+          href="/contul-meu"
+          aria-label="Contul meu"
+          title="Contul meu"
+          className="flex size-10 shrink-0 items-center justify-center rounded-full text-ink transition-colors hover:bg-ink/5"
+        >
+          <CircleUserRound className="size-[18px]" strokeWidth={1.5} aria-hidden="true" />
+        </Link>
         <CartButton />
       </div>
     </div>

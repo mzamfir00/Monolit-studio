@@ -87,7 +87,8 @@ export type CheckoutField =
   | "shippingCounty"
   | "shippingPostalCode"
   | "customerNote"
-  | "acceptTerms";
+  | "acceptTerms"
+  | "accountPassword";
 
 export type CheckoutErrors = Partial<Record<CheckoutField, string>>;
 

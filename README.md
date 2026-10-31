@@ -66,6 +66,12 @@ stripe listen --forward-to localhost:3000/api/stripe/webhook
 
 Checkout and order pages need PostgreSQL (`npm run db:migrate` and `npm run db:seed` first).
 
+## Customer accounts
+
+Customers can create an account at `/autentificare` (or tick "Vreau să creez un cont…" at checkout). `/contul-meu` lists their paid orders with the engraving of every piece and the workshop stage, and stores their default delivery address, which prefills checkout. Ordering without an account still works.
+
+Password reset links are e-mailed through [Resend](https://resend.com): set `RESEND_API_KEY` and `EMAIL_FROM` (an address on a domain verified in Resend). Under `npm run dev` without them, the reset link is shown on screen instead.
+
 ## Workshop portal (`/admin`)
 
 Owner-only. Create the credentials once and paste the two printed lines, plus your e-mail, into `.env`:
@@ -83,6 +89,7 @@ Then sign in at `/admin/login`.
 - **Panou** — revenue per atelier, the load on each M20 by workshop stage, urgent orders and blanks running low.
 - **Producție M20** — the queue as a board, one column per stage, filterable by machine and stage. Each piece shows its text in the chosen font, can be moved to another M20, and has **Descarcă SVG (mm) · Față / Verso**: a Gravostyle-ready file whose `width`/`height` are the blank's engraving area in millimetres, with a cyan guide outline of the blank, the vector symbol and the centred text. **Fișă tehnică de atelier** opens the printable job sheet.
 - **Comenzi** — search, PF/PJ billing and shipping details, the status history, and the courier + AWB form that marks an order shipped.
+- **Clienți** — registered customer accounts with their number of paid orders, lifetime spend and sign-up date.
 - **Produse** — add, edit, duplicate, hide or delete products: prices, stock (also editable inline in the list), finishes, volume tiers and the M20 parameters (blank SKU, material, engraving area and depth, machine, diamond or rotary, tool). Changes appear in the shop immediately. Products that were already ordered can only be hidden.
 
 ## Deploy to Vercel

@@ -192,6 +192,10 @@ model Order {
   totalBani    Int
   currency     String @default("RON")
 
+  /// Customer account that placed the order; null for guest and legacy orders.
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
   stripeCheckoutSessionId String?   @unique
   stripePaymentIntentId   String?   @unique
   paidAt                  DateTime?
@@ -211,6 +215,7 @@ model Order {
   updatedAt DateTime @updatedAt
 
   @@index([status, createdAt])
+  @@index([userId, createdAt])
 }
 
 /// One engraved piece. Product data is snapshotted so the job sheet survives catalogue edits.
@@ -276,4 +281,61 @@ model Upload {
   size      Int
   data      Bytes
   createdAt DateTime @default(now())
+}
+
+enum UserRole {
+  CUSTOMER
+  /// Reserved. The admin portal signs in with the owner credentials from the environment, not with this table.
+  ADMIN
+}
+
+/// Customer account for /contul-meu: order history, saved delivery address, faster checkout.
+model User {
+  id           String   @id @default(cuid())
+  name         String
+  /// Stored lower-case.
+  email        String   @unique
+  /// scrypt hash from src/lib/password.ts; null for an account that has not set a password yet.
+  passwordHash String?
+  /// +40XXXXXXXXX
+  phone        String?
+  role         UserRole @default(CUSTOMER)
+
+  /// Default delivery address, prefilled at checkout.
+  shippingAddress    String?
+  shippingCity       String?
+  shippingCounty     String?
+  shippingPostalCode String?
+
+  orders      Order[]
+  sessions    CustomerSession[]
+  resetTokens PasswordResetToken[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// Signed-in customer browser. The cookie holds a random token; only its SHA-256 is stored.
+model CustomerSession {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+/// One-time link for setting a new password (sent by e-mail). Only the token's SHA-256 is stored.
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
 }

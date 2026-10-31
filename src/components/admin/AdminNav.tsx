@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Factory, LayoutDashboard, Package, Receipt } from "lucide-react";
+import { Factory, LayoutDashboard, Package, Receipt, Users } from "lucide-react";
 import { cn } from "@/lib/format";
 
 const LINKS = [
@@ -10,6 +10,7 @@ const LINKS = [
   { href: "/admin/production", label: "Producție M20", icon: Factory },
   { href: "/admin/orders", label: "Comenzi", icon: Receipt },
   { href: "/admin/products", label: "Produse", icon: Package },
+  { href: "/admin/customers", label: "Clienți", icon: Users },
 ];
 
 export function AdminNav() {
